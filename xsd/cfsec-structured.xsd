@@ -27,7 +27,7 @@
 </xsd:simpleType>
 
 <xsd:simpleType name="ClusterIdGenType">
-	<xsd:restriction base="xsd:long"/>
+	<xsd:restriction base="DbKeyHash256"/>
 </xsd:simpleType>
 
 <xsd:simpleType name="DeviceNameType">
