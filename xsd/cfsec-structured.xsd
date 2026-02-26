@@ -938,17 +938,17 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
+	<xsd:attribute name="SecUserId" type="SecSessionSecUserIdType" use="required"/>
 	<xsd:attribute name="SecDevName" type="SecSessionSecDevNameType" use="optional"/>
 	<xsd:attribute name="Start" type="SecSessionStartType" use="required"/>
 	<xsd:attribute name="Finish" type="SecSessionFinishType" use="optional"/>
-	<xsd:attribute name="SecProxy" type="xsd:string" use="required"/>
+	<xsd:attribute name="SecProxyId" type="SecSessionSecProxyIdType" use="optional"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecUserObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 			<xsd:element name="SecDevice" type="SecDeviceObjType" />
-			<xsd:element name="SecSession" type="SecSessionObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="LoginId" type="SecUserLoginIdType" use="required"/>
@@ -1033,6 +1033,7 @@
 			<xsd:element name="ISOCtry" type="ISOCtryObjType" />
 			<xsd:element name="ISOLang" type="ISOLangObjType" />
 			<xsd:element name="ISOTZone" type="ISOTZoneObjType" />
+			<xsd:element name="SecSession" type="SecSessionObjType" />
 			<xsd:element name="SecUser" type="SecUserObjType" />
 			<xsd:element name="ServiceType" type="ServiceTypeObjType" />
 		</xsd:choice>
