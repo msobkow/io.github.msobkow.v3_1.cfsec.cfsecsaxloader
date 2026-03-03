@@ -60,7 +60,7 @@ public class CFSecSaxLoader
 {
 
 	// The namespace URI of the supported schema
-	public final static String	SCHEMA_XMLNS = "http://server.markhome.mcf/mcf/xsd/v3_1/cfsec-structured.xsd";
+	public final static String	SCHEMA_XMLNS = "http://msobkow.github.io/msobkow/xsd/v3_1/cfsec-structured.xsd";
 
 	// The source for loading the supported schema
 	public final static String	SCHEMA_URI = "/opt/msobkow/3.0.1/xsd/cfsec-structured.xsd";
