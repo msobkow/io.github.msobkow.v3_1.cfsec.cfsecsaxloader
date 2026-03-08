@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for ISOCtry
+// Description: Java 25 XML SAX Element Handler for SecSession
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderISOCtryParse XML SAX Element Handler implementation
- *	for ISOCtry.
+ *	CFSecSaxLoaderSecSessionParse XML SAX Element Handler implementation
+ *	for SecSession.
  */
-public class CFSecSaxLoaderISOCtry
+public class CFSecSaxLoaderSecSession
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderISOCtry( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSecSession( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,21 +68,24 @@ public class CFSecSaxLoaderISOCtry
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecISOCtryObj origBuff = null;
-		ICFSecISOCtryEditObj editBuff = null;
+		ICFSecSecSessionObj origBuff = null;
+		ICFSecSecSessionEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// ISOCtry Attributes
-		String attrISOCode = null;
-		String attrName = null;
-		// ISOCtry References
+		// SecSession Attributes
+		String attrSecUserId = null;
+		String attrSecDevName = null;
+		String attrStart = null;
+		String attrFinish = null;
+		String attrSecProxyId = null;
+		// SecSession References
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "ISOCtry" );
+			assert qName.equals( "SecSession" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -101,8 +104,8 @@ public class CFSecSaxLoaderISOCtry
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecISOCtryObj)schemaObj.getISOCtryTableObj().newInstance();
-			editBuff = (ICFSecISOCtryEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSecSessionObj)schemaObj.getSecSessionTableObj().newInstance();
+			editBuff = (ICFSecSecSessionEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -117,23 +120,50 @@ public class CFSecSaxLoaderISOCtry
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "ISOCode" ) ) {
-					if( attrISOCode != null ) {
+				else if( attrLocalName.equals( "SecUserId" ) ) {
+					if( attrSecUserId != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrISOCode = attrs.getValue( idxAttr );
+					attrSecUserId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "Name" ) ) {
-					if( attrName != null ) {
+				else if( attrLocalName.equals( "SecDevName" ) ) {
+					if( attrSecDevName != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrName = attrs.getValue( idxAttr );
+					attrSecDevName = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "Start" ) ) {
+					if( attrStart != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrStart = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "Finish" ) ) {
+					if( attrFinish != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrFinish = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "SecProxyId" ) ) {
+					if( attrSecProxyId != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrSecProxyId = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -147,24 +177,27 @@ public class CFSecSaxLoaderISOCtry
 			}
 
 			// Ensure that required attributes have values
-			if( attrISOCode == null ) {
+			if( ( attrSecUserId == null ) || ( attrSecUserId.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"ISOCode" );
+					"SecUserId" );
 			}
-			if( attrName == null ) {
+			if( ( attrStart == null ) || ( attrStart.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"Name" );
+					"Start" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "ISOCode", attrISOCode );
-			curContext.putNamedValue( "Name", attrName );
+			curContext.putNamedValue( "SecUserId", attrSecUserId );
+			curContext.putNamedValue( "SecDevName", attrSecDevName );
+			curContext.putNamedValue( "Start", attrStart );
+			curContext.putNamedValue( "Finish", attrFinish );
+			curContext.putNamedValue( "SecProxyId", attrSecProxyId );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -176,11 +209,70 @@ public class CFSecSaxLoaderISOCtry
 			else {
 				natId = null;
 			}
-			String natISOCode = attrISOCode;
-			editBuff.setRequiredISOCode( natISOCode );
+			CFLibDbKeyHash256 natSecUserId;
+			try {
+				natSecUserId = CFLibDbKeyHash256.fromHex( attrSecUserId );
+			}
+			catch( RuntimeException e ) {
+				throw new CFLibInvalidArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"SecUserId",
+					e );
+			}
+			editBuff.setRequiredSecUserId( natSecUserId );
 
-			String natName = attrName;
-			editBuff.setRequiredName( natName );
+			String natSecDevName = attrSecDevName;
+			editBuff.setOptionalSecDevName( natSecDevName );
+
+			LocalDateTime natStart;
+			try {
+				natStart = CFLibXmlUtil.parseTimestamp( attrStart );
+			}
+			catch( RuntimeException e ) {
+				throw new CFLibInvalidArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"Start",
+					e );
+			}
+			editBuff.setRequiredStart( natStart );
+
+			LocalDateTime natFinish;
+			if( ( attrFinish == null ) || ( attrFinish.length() <= 0 ) ) {
+				natFinish = null;
+			}
+			else {
+				try {
+					natFinish = CFLibXmlUtil.parseTimestamp( attrFinish );
+				}
+				catch( RuntimeException e ) {
+					throw new CFLibInvalidArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Finish",
+						e );
+				}
+			}
+			editBuff.setOptionalFinish( natFinish );
+
+			CFLibDbKeyHash256 natSecProxyId;
+			if( ( attrSecProxyId == null ) || ( attrSecProxyId.length() <= 0 ) ) {
+				natSecProxyId = null;
+			}
+			else {
+				try {
+					natSecProxyId = CFLibDbKeyHash256.fromHex( attrSecProxyId );
+				}
+				catch( RuntimeException e ) {
+					throw new CFLibInvalidArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"SecProxyId",
+						e );
+				}
+			}
+			editBuff.setOptionalSecProxyId( natSecProxyId );
 
 			// Get the scope/container object
 
@@ -193,42 +285,12 @@ public class CFSecSaxLoaderISOCtry
 				scopeObj = null;
 			}
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getISOCtryLoaderBehaviour();
-			ICFSecISOCtryEditObj editISOCtry = null;
-			ICFSecISOCtryObj origISOCtry = (ICFSecISOCtryObj)schemaObj.getISOCtryTableObj().readISOCtryByISOCodeIdx( editBuff.getRequiredISOCode() );
-			if( origISOCtry == null ) {
-				editISOCtry = editBuff;
-			}
-			else {
-				switch( loaderBehaviour ) {
-					case Insert:
-						break;
-					case Update:
-						editISOCtry = (ICFSecISOCtryEditObj)origISOCtry.beginEdit();
-						editISOCtry.setRequiredISOCode( editBuff.getRequiredISOCode() );
-						editISOCtry.setRequiredName( editBuff.getRequiredName() );
-						break;
-					case Replace:
-						editISOCtry = (ICFSecISOCtryEditObj)origISOCtry.beginEdit();
-						editISOCtry.deleteInstance();
-						editISOCtry = null;
-						origISOCtry = null;
-						editISOCtry = editBuff;
-						break;
-				}
-			}
+			ICFSecSecSessionObj origSecSession;
+			ICFSecSecSessionEditObj editSecSession = editBuff;
+			origSecSession = (ICFSecSecSessionObj)editSecSession.create();
+			editSecSession = null;
 
-			if( editISOCtry != null ) {
-				if( origISOCtry != null ) {
-					editISOCtry.update();
-				}
-				else {
-					origISOCtry = (ICFSecISOCtryObj)editISOCtry.create();
-				}
-				editISOCtry = null;
-			}
-
-			curContext.putNamedValue( "Object", origISOCtry );
+			curContext.putNamedValue( "Object", origSecSession );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

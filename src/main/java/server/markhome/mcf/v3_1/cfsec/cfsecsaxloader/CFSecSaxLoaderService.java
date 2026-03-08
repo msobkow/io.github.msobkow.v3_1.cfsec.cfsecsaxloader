@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for TSecGrpInc
+// Description: Java 25 XML SAX Element Handler for Service
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderTSecGrpIncParse XML SAX Element Handler implementation
- *	for TSecGrpInc.
+ *	CFSecSaxLoaderServiceParse XML SAX Element Handler implementation
+ *	for Service.
  */
-public class CFSecSaxLoaderTSecGrpInc
+public class CFSecSaxLoaderService
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderTSecGrpInc( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderService( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,23 +68,24 @@ public class CFSecSaxLoaderTSecGrpInc
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecTSecGrpIncObj origBuff = null;
-		ICFSecTSecGrpIncEditObj editBuff = null;
+		ICFSecServiceObj origBuff = null;
+		ICFSecServiceEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// TSecGrpInc Attributes
-		String attrSubGroup = null;
-		// TSecGrpInc References
-		ICFSecTenantObj refTenant = null;
-		ICFSecTSecGroupObj refGroup = null;
-		ICFSecTSecGroupObj refSubGroup = null;
+		// Service Attributes
+		String attrHostPort = null;
+		String attrServiceType = null;
+		// Service References
+		ICFSecClusterObj refCluster = null;
+		ICFSecHostNodeObj refHost = null;
+		ICFSecServiceTypeObj refServiceType = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "TSecGrpInc" );
+			assert qName.equals( "Service" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -103,8 +104,8 @@ public class CFSecSaxLoaderTSecGrpInc
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecTSecGrpIncObj)schemaObj.getTSecGrpIncTableObj().newInstance();
-			editBuff = (ICFSecTSecGrpIncEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecServiceObj)schemaObj.getServiceTableObj().newInstance();
+			editBuff = (ICFSecServiceEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -119,14 +120,23 @@ public class CFSecSaxLoaderTSecGrpInc
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "SubGroup" ) ) {
-					if( attrSubGroup != null ) {
+				else if( attrLocalName.equals( "HostPort" ) ) {
+					if( attrHostPort != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrSubGroup = attrs.getValue( idxAttr );
+					attrHostPort = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "ServiceType" ) ) {
+					if( attrServiceType != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrServiceType = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -140,17 +150,18 @@ public class CFSecSaxLoaderTSecGrpInc
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrSubGroup == null ) || ( attrSubGroup.length() <= 0 ) ) {
+			if( ( attrHostPort == null ) || ( attrHostPort.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"SubGroup" );
+					"HostPort" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "SubGroup", attrSubGroup );
+			curContext.putNamedValue( "HostPort", attrHostPort );
+			curContext.putNamedValue( "ServiceType", attrServiceType );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -162,6 +173,9 @@ public class CFSecSaxLoaderTSecGrpInc
 			else {
 				natId = null;
 			}
+			short natHostPort = Short.parseShort( attrHostPort );
+			editBuff.setRequiredHostPort( natHostPort );
+
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -173,95 +187,94 @@ public class CFSecSaxLoaderTSecGrpInc
 				scopeObj = null;
 			}
 
-			// Resolve and apply required Container reference
+			// Resolve and apply optional Container reference
 
 			if( scopeObj == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"scopeObj" );
+				refHost = null;
+				editBuff.setOptionalContainerHost( refHost );
+				refCluster = (ICFSecClusterObj)editBuff.getRequiredOwnerCluster();
 			}
-			else if( scopeObj instanceof ICFSecTSecGroupObj ) {
-				refGroup = (ICFSecTSecGroupObj) scopeObj;
-				editBuff.setRequiredContainerGroup( refGroup );
-				refTenant = (ICFSecTenantObj)editBuff.getRequiredOwnerTenant();
+			else if( scopeObj instanceof ICFSecHostNodeObj ) {
+				refHost = (ICFSecHostNodeObj) scopeObj;
+				editBuff.setOptionalContainerHost( refHost );
+				refCluster = (ICFSecClusterObj)editBuff.getRequiredOwnerCluster();
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecTSecGroupObj" );
+					"ICFSecHostNodeObj" );
 			}
 
 			// Resolve and apply Owner reference
 
-			if( refTenant == null ) {
-				if( scopeObj instanceof ICFSecTenantObj ) {
-					refTenant = (ICFSecTenantObj) scopeObj;
-					editBuff.setRequiredOwnerTenant( refTenant );
+			if( refCluster == null ) {
+				if( scopeObj instanceof ICFSecClusterObj ) {
+					refCluster = (ICFSecClusterObj) scopeObj;
+					editBuff.setRequiredOwnerCluster( refCluster );
 				}
 				else {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Owner<Tenant>" );
+						"Owner<Cluster>" );
 				}
 			}
 
-			// Lookup refSubGroup by key name value attr
-			if( ( attrSubGroup != null ) && ( attrSubGroup.length() > 0 ) ) {
-				refSubGroup = (ICFSecTSecGroupObj)schemaObj.getTSecGroupTableObj().readTSecGroupByUNameIdx( editBuff.getRequiredTenantId(),
-				attrSubGroup );
-				if( refSubGroup == null ) {
+			// Lookup refServiceType by key name value attr
+			if( ( attrServiceType != null ) && ( attrServiceType.length() > 0 ) ) {
+				refServiceType = (ICFSecServiceTypeObj)schemaObj.getServiceTypeTableObj().readServiceTypeByUDescrIdx( attrServiceType );
+				if( refServiceType == null ) {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Resolve SubGroup reference named \"" + attrSubGroup + "\" to table TSecGroup" );
+						"Resolve ServiceType reference named \"" + attrServiceType + "\" to table ServiceType" );
 				}
 			}
 			else {
-				refSubGroup = null;
+				refServiceType = null;
 			}
-			editBuff.setRequiredParentSubGroup( refSubGroup );
+			editBuff.setOptionalParentServiceType( refServiceType );
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTSecGrpIncLoaderBehaviour();
-			ICFSecTSecGrpIncEditObj editTSecGrpInc = null;
-			ICFSecTSecGrpIncObj origTSecGrpInc = (ICFSecTSecGrpIncObj)schemaObj.getTSecGrpIncTableObj().readTSecGrpIncByUIncludeIdx( refTenant.getRequiredId(),
-			refGroup.getRequiredTSecGroupId(),
-			refSubGroup.getRequiredTSecGroupId() );
-			if( origTSecGrpInc == null ) {
-				editTSecGrpInc = editBuff;
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getServiceLoaderBehaviour();
+			ICFSecServiceEditObj editService = null;
+			ICFSecServiceObj origService = (ICFSecServiceObj)schemaObj.getServiceTableObj().readServiceByUTypeIdx( refCluster.getRequiredId(),
+			refHost.getRequiredHostNodeId(),
+			refServiceType.getRequiredServiceTypeId() );
+			if( origService == null ) {
+				editService = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editTSecGrpInc = (ICFSecTSecGrpIncEditObj)origTSecGrpInc.beginEdit();
-						editTSecGrpInc.setRequiredParentSubGroup( editBuff.getRequiredParentSubGroup() );
+						editService = (ICFSecServiceEditObj)origService.beginEdit();
+						editService.setRequiredHostPort( editBuff.getRequiredHostPort() );
+						editService.setOptionalParentServiceType( editBuff.getOptionalParentServiceType() );
 						break;
 					case Replace:
-						editTSecGrpInc = (ICFSecTSecGrpIncEditObj)origTSecGrpInc.beginEdit();
-						editTSecGrpInc.deleteInstance();
-						editTSecGrpInc = null;
-						origTSecGrpInc = null;
-						editTSecGrpInc = editBuff;
+						editService = (ICFSecServiceEditObj)origService.beginEdit();
+						editService.deleteInstance();
+						editService = null;
+						origService = null;
+						editService = editBuff;
 						break;
 				}
 			}
 
-			if( editTSecGrpInc != null ) {
-				if( origTSecGrpInc != null ) {
-					editTSecGrpInc.update();
+			if( editService != null ) {
+				if( origService != null ) {
+					editService.update();
 				}
 				else {
-					origTSecGrpInc = (ICFSecTSecGrpIncObj)editTSecGrpInc.create();
+					origService = (ICFSecServiceObj)editService.create();
 				}
-				editTSecGrpInc = null;
+				editService = null;
 			}
 
-			curContext.putNamedValue( "Object", origTSecGrpInc );
+			curContext.putNamedValue( "Object", origService );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

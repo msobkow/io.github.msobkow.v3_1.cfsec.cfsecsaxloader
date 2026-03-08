@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for ISOCcy
+// Description: Java 25 XML SAX Element Handler for HostNode
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderISOCcyParse XML SAX Element Handler implementation
- *	for ISOCcy.
+ *	CFSecSaxLoaderHostNodeParse XML SAX Element Handler implementation
+ *	for HostNode.
  */
-public class CFSecSaxLoaderISOCcy
+public class CFSecSaxLoaderHostNode
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderISOCcy( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderHostNode( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,23 +68,22 @@ public class CFSecSaxLoaderISOCcy
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecISOCcyObj origBuff = null;
-		ICFSecISOCcyEditObj editBuff = null;
+		ICFSecHostNodeObj origBuff = null;
+		ICFSecHostNodeEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// ISOCcy Attributes
-		String attrISOCode = null;
-		String attrName = null;
-		String attrUnitSymbol = null;
-		String attrPrecis = null;
-		// ISOCcy References
+		// HostNode Attributes
+		String attrDescription = null;
+		String attrHostName = null;
+		// HostNode References
+		ICFSecClusterObj refCluster = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "ISOCcy" );
+			assert qName.equals( "HostNode" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -103,8 +102,8 @@ public class CFSecSaxLoaderISOCcy
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecISOCcyObj)schemaObj.getISOCcyTableObj().newInstance();
-			editBuff = (ICFSecISOCcyEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecHostNodeObj)schemaObj.getHostNodeTableObj().newInstance();
+			editBuff = (ICFSecHostNodeEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -119,41 +118,23 @@ public class CFSecSaxLoaderISOCcy
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "ISOCode" ) ) {
-					if( attrISOCode != null ) {
+				else if( attrLocalName.equals( "Description" ) ) {
+					if( attrDescription != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrISOCode = attrs.getValue( idxAttr );
+					attrDescription = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "Name" ) ) {
-					if( attrName != null ) {
+				else if( attrLocalName.equals( "HostName" ) ) {
+					if( attrHostName != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrName = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "UnitSymbol" ) ) {
-					if( attrUnitSymbol != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrUnitSymbol = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "Precis" ) ) {
-					if( attrPrecis != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrPrecis = attrs.getValue( idxAttr );
+					attrHostName = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -167,32 +148,24 @@ public class CFSecSaxLoaderISOCcy
 			}
 
 			// Ensure that required attributes have values
-			if( attrISOCode == null ) {
+			if( attrDescription == null ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"ISOCode" );
+					"Description" );
 			}
-			if( attrName == null ) {
+			if( attrHostName == null ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"Name" );
-			}
-			if( ( attrPrecis == null ) || ( attrPrecis.length() <= 0 ) ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"Precis" );
+					"HostName" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "ISOCode", attrISOCode );
-			curContext.putNamedValue( "Name", attrName );
-			curContext.putNamedValue( "UnitSymbol", attrUnitSymbol );
-			curContext.putNamedValue( "Precis", attrPrecis );
+			curContext.putNamedValue( "Description", attrDescription );
+			curContext.putNamedValue( "HostName", attrHostName );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -204,17 +177,11 @@ public class CFSecSaxLoaderISOCcy
 			else {
 				natId = null;
 			}
-			String natISOCode = attrISOCode;
-			editBuff.setRequiredISOCode( natISOCode );
+			String natDescription = attrDescription;
+			editBuff.setRequiredDescription( natDescription );
 
-			String natName = attrName;
-			editBuff.setRequiredName( natName );
-
-			String natUnitSymbol = attrUnitSymbol;
-			editBuff.setOptionalUnitSymbol( natUnitSymbol );
-
-			short natPrecis = Short.parseShort( attrPrecis );
-			editBuff.setRequiredPrecis( natPrecis );
+			String natHostName = attrHostName;
+			editBuff.setRequiredHostName( natHostName );
 
 			// Get the scope/container object
 
@@ -227,44 +194,63 @@ public class CFSecSaxLoaderISOCcy
 				scopeObj = null;
 			}
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getISOCcyLoaderBehaviour();
-			ICFSecISOCcyEditObj editISOCcy = null;
-			ICFSecISOCcyObj origISOCcy = (ICFSecISOCcyObj)schemaObj.getISOCcyTableObj().readISOCcyByCcyCdIdx( editBuff.getRequiredISOCode() );
-			if( origISOCcy == null ) {
-				editISOCcy = editBuff;
+			// Resolve and apply required Container reference
+
+			if( scopeObj == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"scopeObj" );
+			}
+			else if( scopeObj instanceof ICFSecClusterObj ) {
+				refCluster = (ICFSecClusterObj) scopeObj;
+				editBuff.setRequiredContainerCluster( refCluster );
+			}
+			else {
+				throw new CFLibUnsupportedClassException( getClass(),
+					S_ProcName,
+					"scopeObj",
+					scopeObj,
+					"ICFSecClusterObj" );
+			}
+
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getHostNodeLoaderBehaviour();
+			ICFSecHostNodeEditObj editHostNode = null;
+			ICFSecHostNodeObj origHostNode = (ICFSecHostNodeObj)schemaObj.getHostNodeTableObj().readHostNodeByHostNameIdx( refCluster.getRequiredId(),
+			editBuff.getRequiredHostName() );
+			if( origHostNode == null ) {
+				editHostNode = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editISOCcy = (ICFSecISOCcyEditObj)origISOCcy.beginEdit();
-						editISOCcy.setRequiredISOCode( editBuff.getRequiredISOCode() );
-						editISOCcy.setRequiredName( editBuff.getRequiredName() );
-						editISOCcy.setOptionalUnitSymbol( editBuff.getOptionalUnitSymbol() );
-						editISOCcy.setRequiredPrecis( editBuff.getRequiredPrecis() );
+						editHostNode = (ICFSecHostNodeEditObj)origHostNode.beginEdit();
+						editHostNode.setRequiredDescription( editBuff.getRequiredDescription() );
+						editHostNode.setRequiredHostName( editBuff.getRequiredHostName() );
 						break;
 					case Replace:
-						editISOCcy = (ICFSecISOCcyEditObj)origISOCcy.beginEdit();
-						editISOCcy.deleteInstance();
-						editISOCcy = null;
-						origISOCcy = null;
-						editISOCcy = editBuff;
+						editHostNode = (ICFSecHostNodeEditObj)origHostNode.beginEdit();
+						editHostNode.deleteInstance();
+						editHostNode = null;
+						origHostNode = null;
+						editHostNode = editBuff;
 						break;
 				}
 			}
 
-			if( editISOCcy != null ) {
-				if( origISOCcy != null ) {
-					editISOCcy.update();
+			if( editHostNode != null ) {
+				if( origHostNode != null ) {
+					editHostNode.update();
 				}
 				else {
-					origISOCcy = (ICFSecISOCcyObj)editISOCcy.create();
+					origHostNode = (ICFSecHostNodeObj)editHostNode.create();
 				}
-				editISOCcy = null;
+				editHostNode = null;
 			}
 
-			curContext.putNamedValue( "Object", origISOCcy );
+			curContext.putNamedValue( "Object", origHostNode );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

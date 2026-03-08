@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for ISOCtryCcy
+// Description: Java 25 XML SAX Element Handler for SysCluster
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderISOCtryCcyParse XML SAX Element Handler implementation
- *	for ISOCtryCcy.
+ *	CFSecSaxLoaderSysClusterParse XML SAX Element Handler implementation
+ *	for SysCluster.
  */
-public class CFSecSaxLoaderISOCtryCcy
+public class CFSecSaxLoaderSysCluster
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderISOCtryCcy( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSysCluster( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,22 +68,20 @@ public class CFSecSaxLoaderISOCtryCcy
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecISOCtryCcyObj origBuff = null;
-		ICFSecISOCtryCcyEditObj editBuff = null;
+		ICFSecSysClusterObj origBuff = null;
+		ICFSecSysClusterEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// ISOCtryCcy Attributes
-		String attrCcy = null;
-		// ISOCtryCcy References
-		ICFSecISOCtryObj refCtry = null;
-		ICFSecISOCcyObj refCcy = null;
+		// SysCluster Attributes
+		// SysCluster References
+		ICFSecClusterObj refCluster = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "ISOCtryCcy" );
+			assert qName.equals( "SysCluster" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -102,8 +100,8 @@ public class CFSecSaxLoaderISOCtryCcy
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecISOCtryCcyObj)schemaObj.getISOCtryCcyTableObj().newInstance();
-			editBuff = (ICFSecISOCtryCcyEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSysClusterObj)schemaObj.getSysClusterTableObj().newInstance();
+			editBuff = (ICFSecSysClusterEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -118,15 +116,6 @@ public class CFSecSaxLoaderISOCtryCcy
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "Ccy" ) ) {
-					if( attrCcy != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrCcy = attrs.getValue( idxAttr );
-				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -139,17 +128,10 @@ public class CFSecSaxLoaderISOCtryCcy
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrCcy == null ) || ( attrCcy.length() <= 0 ) ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"Ccy" );
-			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "Ccy", attrCcy );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -180,69 +162,24 @@ public class CFSecSaxLoaderISOCtryCcy
 					0,
 					"scopeObj" );
 			}
-			else if( scopeObj instanceof ICFSecISOCtryObj ) {
-				refCtry = (ICFSecISOCtryObj) scopeObj;
-				editBuff.setRequiredContainerCtry( refCtry );
+			else if( scopeObj instanceof ICFSecClusterObj ) {
+				refCluster = (ICFSecClusterObj) scopeObj;
+				editBuff.setRequiredContainerCluster( refCluster );
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecISOCtryObj" );
+					"ICFSecClusterObj" );
 			}
 
-			// Lookup refCcy by key name value attr
-			if( ( attrCcy != null ) && ( attrCcy.length() > 0 ) ) {
-				refCcy = (ICFSecISOCcyObj)schemaObj.getISOCcyTableObj().readISOCcyByCcyCdIdx( attrCcy );
-				if( refCcy == null ) {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Resolve Ccy reference named \"" + attrCcy + "\" to table ISOCcy" );
-				}
-			}
-			else {
-				refCcy = null;
-			}
-			editBuff.setRequiredParentCcy( refCcy );
+			ICFSecSysClusterObj origSysCluster;
+			ICFSecSysClusterEditObj editSysCluster = editBuff;
+			origSysCluster = (ICFSecSysClusterObj)editSysCluster.create();
+			editSysCluster = null;
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getISOCtryCcyLoaderBehaviour();
-			ICFSecISOCtryCcyEditObj editISOCtryCcy = null;
-			ICFSecISOCtryCcyObj origISOCtryCcy = (ICFSecISOCtryCcyObj)schemaObj.getISOCtryCcyTableObj().readISOCtryCcyByIdIdx( refCtry.getRequiredISOCtryId(),
-			refCcy.getRequiredISOCcyId() );
-			if( origISOCtryCcy == null ) {
-				editISOCtryCcy = editBuff;
-			}
-			else {
-				switch( loaderBehaviour ) {
-					case Insert:
-						break;
-					case Update:
-						editISOCtryCcy = (ICFSecISOCtryCcyEditObj)origISOCtryCcy.beginEdit();
-						editISOCtryCcy.setRequiredParentCcy( editBuff.getRequiredParentCcy() );
-						break;
-					case Replace:
-						editISOCtryCcy = (ICFSecISOCtryCcyEditObj)origISOCtryCcy.beginEdit();
-						editISOCtryCcy.deleteInstance();
-						editISOCtryCcy = null;
-						origISOCtryCcy = null;
-						editISOCtryCcy = editBuff;
-						break;
-				}
-			}
-
-			if( editISOCtryCcy != null ) {
-				if( origISOCtryCcy != null ) {
-					editISOCtryCcy.update();
-				}
-				else {
-					origISOCtryCcy = (ICFSecISOCtryCcyObj)editISOCtryCcy.create();
-				}
-				editISOCtryCcy = null;
-			}
-
-			curContext.putNamedValue( "Object", origISOCtryCcy );
+			curContext.putNamedValue( "Object", origSysCluster );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

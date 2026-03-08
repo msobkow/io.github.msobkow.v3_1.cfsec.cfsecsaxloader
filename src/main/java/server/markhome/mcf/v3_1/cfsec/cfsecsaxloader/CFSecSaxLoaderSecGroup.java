@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for TSecGroup
+// Description: Java 25 XML SAX Element Handler for SecGroup
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderTSecGroupParse XML SAX Element Handler implementation
- *	for TSecGroup.
+ *	CFSecSaxLoaderSecGroupParse XML SAX Element Handler implementation
+ *	for SecGroup.
  */
-public class CFSecSaxLoaderTSecGroup
+public class CFSecSaxLoaderSecGroup
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderTSecGroup( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSecGroup( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,22 +68,22 @@ public class CFSecSaxLoaderTSecGroup
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecTSecGroupObj origBuff = null;
-		ICFSecTSecGroupEditObj editBuff = null;
+		ICFSecSecGroupObj origBuff = null;
+		ICFSecSecGroupEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// TSecGroup Attributes
+		// SecGroup Attributes
 		String attrName = null;
 		String attrIsVisible = null;
-		// TSecGroup References
-		ICFSecTenantObj refTenant = null;
+		// SecGroup References
+		ICFSecClusterObj refCluster = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "TSecGroup" );
+			assert qName.equals( "SecGroup" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -102,8 +102,8 @@ public class CFSecSaxLoaderTSecGroup
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecTSecGroupObj)schemaObj.getTSecGroupTableObj().newInstance();
-			editBuff = (ICFSecTSecGroupEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSecGroupObj)schemaObj.getSecGroupTableObj().newInstance();
+			editBuff = (ICFSecSecGroupEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -214,55 +214,55 @@ public class CFSecSaxLoaderTSecGroup
 					0,
 					"scopeObj" );
 			}
-			else if( scopeObj instanceof ICFSecTenantObj ) {
-				refTenant = (ICFSecTenantObj) scopeObj;
-				editBuff.setRequiredContainerTenant( refTenant );
+			else if( scopeObj instanceof ICFSecClusterObj ) {
+				refCluster = (ICFSecClusterObj) scopeObj;
+				editBuff.setRequiredContainerCluster( refCluster );
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecTenantObj" );
+					"ICFSecClusterObj" );
 			}
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTSecGroupLoaderBehaviour();
-			ICFSecTSecGroupEditObj editTSecGroup = null;
-			ICFSecTSecGroupObj origTSecGroup = (ICFSecTSecGroupObj)schemaObj.getTSecGroupTableObj().readTSecGroupByUNameIdx( refTenant.getRequiredId(),
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecGroupLoaderBehaviour();
+			ICFSecSecGroupEditObj editSecGroup = null;
+			ICFSecSecGroupObj origSecGroup = (ICFSecSecGroupObj)schemaObj.getSecGroupTableObj().readSecGroupByUNameIdx( refCluster.getRequiredId(),
 			editBuff.getRequiredName() );
-			if( origTSecGroup == null ) {
-				editTSecGroup = editBuff;
+			if( origSecGroup == null ) {
+				editSecGroup = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editTSecGroup = (ICFSecTSecGroupEditObj)origTSecGroup.beginEdit();
-						editTSecGroup.setRequiredName( editBuff.getRequiredName() );
-						editTSecGroup.setRequiredIsVisible( editBuff.getRequiredIsVisible() );
+						editSecGroup = (ICFSecSecGroupEditObj)origSecGroup.beginEdit();
+						editSecGroup.setRequiredName( editBuff.getRequiredName() );
+						editSecGroup.setRequiredIsVisible( editBuff.getRequiredIsVisible() );
 						break;
 					case Replace:
-						editTSecGroup = (ICFSecTSecGroupEditObj)origTSecGroup.beginEdit();
-						editTSecGroup.deleteInstance();
-						editTSecGroup = null;
-						origTSecGroup = null;
-						editTSecGroup = editBuff;
+						editSecGroup = (ICFSecSecGroupEditObj)origSecGroup.beginEdit();
+						editSecGroup.deleteInstance();
+						editSecGroup = null;
+						origSecGroup = null;
+						editSecGroup = editBuff;
 						break;
 				}
 			}
 
-			if( editTSecGroup != null ) {
-				if( origTSecGroup != null ) {
-					editTSecGroup.update();
+			if( editSecGroup != null ) {
+				if( origSecGroup != null ) {
+					editSecGroup.update();
 				}
 				else {
-					origTSecGroup = (ICFSecTSecGroupObj)editTSecGroup.create();
+					origSecGroup = (ICFSecSecGroupObj)editSecGroup.create();
 				}
-				editTSecGroup = null;
+				editSecGroup = null;
 			}
 
-			curContext.putNamedValue( "Object", origTSecGroup );
+			curContext.putNamedValue( "Object", origSecGroup );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

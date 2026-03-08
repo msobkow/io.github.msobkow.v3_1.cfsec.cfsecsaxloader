@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for Service
+// Description: Java 25 XML SAX Element Handler for TSecGrpMemb
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderServiceParse XML SAX Element Handler implementation
- *	for Service.
+ *	CFSecSaxLoaderTSecGrpMembParse XML SAX Element Handler implementation
+ *	for TSecGrpMemb.
  */
-public class CFSecSaxLoaderService
+public class CFSecSaxLoaderTSecGrpMemb
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderService( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderTSecGrpMemb( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,24 +68,23 @@ public class CFSecSaxLoaderService
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecServiceObj origBuff = null;
-		ICFSecServiceEditObj editBuff = null;
+		ICFSecTSecGrpMembObj origBuff = null;
+		ICFSecTSecGrpMembEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// Service Attributes
-		String attrHostPort = null;
-		String attrServiceType = null;
-		// Service References
-		ICFSecClusterObj refCluster = null;
-		ICFSecHostNodeObj refHost = null;
-		ICFSecServiceTypeObj refServiceType = null;
+		// TSecGrpMemb Attributes
+		String attrUser = null;
+		// TSecGrpMemb References
+		ICFSecTenantObj refTenant = null;
+		ICFSecTSecGroupObj refGroup = null;
+		ICFSecSecUserObj refUser = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "Service" );
+			assert qName.equals( "TSecGrpMemb" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -104,8 +103,8 @@ public class CFSecSaxLoaderService
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecServiceObj)schemaObj.getServiceTableObj().newInstance();
-			editBuff = (ICFSecServiceEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecTSecGrpMembObj)schemaObj.getTSecGrpMembTableObj().newInstance();
+			editBuff = (ICFSecTSecGrpMembEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -120,23 +119,14 @@ public class CFSecSaxLoaderService
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "HostPort" ) ) {
-					if( attrHostPort != null ) {
+				else if( attrLocalName.equals( "User" ) ) {
+					if( attrUser != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrHostPort = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "ServiceType" ) ) {
-					if( attrServiceType != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrServiceType = attrs.getValue( idxAttr );
+					attrUser = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -150,18 +140,17 @@ public class CFSecSaxLoaderService
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrHostPort == null ) || ( attrHostPort.length() <= 0 ) ) {
+			if( ( attrUser == null ) || ( attrUser.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"HostPort" );
+					"User" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "HostPort", attrHostPort );
-			curContext.putNamedValue( "ServiceType", attrServiceType );
+			curContext.putNamedValue( "User", attrUser );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -173,9 +162,6 @@ public class CFSecSaxLoaderService
 			else {
 				natId = null;
 			}
-			short natHostPort = Short.parseShort( attrHostPort );
-			editBuff.setRequiredHostPort( natHostPort );
-
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -187,94 +173,94 @@ public class CFSecSaxLoaderService
 				scopeObj = null;
 			}
 
-			// Resolve and apply optional Container reference
+			// Resolve and apply required Container reference
 
 			if( scopeObj == null ) {
-				refHost = null;
-				editBuff.setOptionalContainerHost( refHost );
-				refCluster = (ICFSecClusterObj)editBuff.getRequiredOwnerCluster();
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"scopeObj" );
 			}
-			else if( scopeObj instanceof ICFSecHostNodeObj ) {
-				refHost = (ICFSecHostNodeObj) scopeObj;
-				editBuff.setOptionalContainerHost( refHost );
-				refCluster = (ICFSecClusterObj)editBuff.getRequiredOwnerCluster();
+			else if( scopeObj instanceof ICFSecTSecGroupObj ) {
+				refGroup = (ICFSecTSecGroupObj) scopeObj;
+				editBuff.setRequiredContainerGroup( refGroup );
+				refTenant = (ICFSecTenantObj)editBuff.getRequiredOwnerTenant();
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecHostNodeObj" );
+					"ICFSecTSecGroupObj" );
 			}
 
 			// Resolve and apply Owner reference
 
-			if( refCluster == null ) {
-				if( scopeObj instanceof ICFSecClusterObj ) {
-					refCluster = (ICFSecClusterObj) scopeObj;
-					editBuff.setRequiredOwnerCluster( refCluster );
+			if( refTenant == null ) {
+				if( scopeObj instanceof ICFSecTenantObj ) {
+					refTenant = (ICFSecTenantObj) scopeObj;
+					editBuff.setRequiredOwnerTenant( refTenant );
 				}
 				else {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Owner<Cluster>" );
+						"Owner<Tenant>" );
 				}
 			}
 
-			// Lookup refServiceType by key name value attr
-			if( ( attrServiceType != null ) && ( attrServiceType.length() > 0 ) ) {
-				refServiceType = (ICFSecServiceTypeObj)schemaObj.getServiceTypeTableObj().readServiceTypeByUDescrIdx( attrServiceType );
-				if( refServiceType == null ) {
+			// Lookup refUser by key name value attr
+			if( ( attrUser != null ) && ( attrUser.length() > 0 ) ) {
+				refUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrUser );
+				if( refUser == null ) {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Resolve ServiceType reference named \"" + attrServiceType + "\" to table ServiceType" );
+						"Resolve User reference named \"" + attrUser + "\" to table SecUser" );
 				}
 			}
 			else {
-				refServiceType = null;
+				refUser = null;
 			}
-			editBuff.setOptionalParentServiceType( refServiceType );
+			editBuff.setRequiredParentUser( refUser );
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getServiceLoaderBehaviour();
-			ICFSecServiceEditObj editService = null;
-			ICFSecServiceObj origService = (ICFSecServiceObj)schemaObj.getServiceTableObj().readServiceByUTypeIdx( refCluster.getRequiredId(),
-			refHost.getRequiredHostNodeId(),
-			refServiceType.getRequiredServiceTypeId() );
-			if( origService == null ) {
-				editService = editBuff;
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTSecGrpMembLoaderBehaviour();
+			ICFSecTSecGrpMembEditObj editTSecGrpMemb = null;
+			ICFSecTSecGrpMembObj origTSecGrpMemb = (ICFSecTSecGrpMembObj)schemaObj.getTSecGrpMembTableObj().readTSecGrpMembByUUserIdx( refTenant.getRequiredId(),
+			refGroup.getRequiredTSecGroupId(),
+			refUser.getRequiredSecUserId() );
+			if( origTSecGrpMemb == null ) {
+				editTSecGrpMemb = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editService = (ICFSecServiceEditObj)origService.beginEdit();
-						editService.setRequiredHostPort( editBuff.getRequiredHostPort() );
-						editService.setOptionalParentServiceType( editBuff.getOptionalParentServiceType() );
+						editTSecGrpMemb = (ICFSecTSecGrpMembEditObj)origTSecGrpMemb.beginEdit();
+						editTSecGrpMemb.setRequiredParentUser( editBuff.getRequiredParentUser() );
 						break;
 					case Replace:
-						editService = (ICFSecServiceEditObj)origService.beginEdit();
-						editService.deleteInstance();
-						editService = null;
-						origService = null;
-						editService = editBuff;
+						editTSecGrpMemb = (ICFSecTSecGrpMembEditObj)origTSecGrpMemb.beginEdit();
+						editTSecGrpMemb.deleteInstance();
+						editTSecGrpMemb = null;
+						origTSecGrpMemb = null;
+						editTSecGrpMemb = editBuff;
 						break;
 				}
 			}
 
-			if( editService != null ) {
-				if( origService != null ) {
-					editService.update();
+			if( editTSecGrpMemb != null ) {
+				if( origTSecGrpMemb != null ) {
+					editTSecGrpMemb.update();
 				}
 				else {
-					origService = (ICFSecServiceObj)editService.create();
+					origTSecGrpMemb = (ICFSecTSecGrpMembObj)editTSecGrpMemb.create();
 				}
-				editService = null;
+				editTSecGrpMemb = null;
 			}
 
-			curContext.putNamedValue( "Object", origService );
+			curContext.putNamedValue( "Object", origTSecGrpMemb );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

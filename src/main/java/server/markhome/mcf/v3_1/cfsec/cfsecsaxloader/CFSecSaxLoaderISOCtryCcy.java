@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for TSecGrpMemb
+// Description: Java 25 XML SAX Element Handler for ISOCtryCcy
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderTSecGrpMembParse XML SAX Element Handler implementation
- *	for TSecGrpMemb.
+ *	CFSecSaxLoaderISOCtryCcyParse XML SAX Element Handler implementation
+ *	for ISOCtryCcy.
  */
-public class CFSecSaxLoaderTSecGrpMemb
+public class CFSecSaxLoaderISOCtryCcy
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderTSecGrpMemb( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderISOCtryCcy( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,23 +68,22 @@ public class CFSecSaxLoaderTSecGrpMemb
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecTSecGrpMembObj origBuff = null;
-		ICFSecTSecGrpMembEditObj editBuff = null;
+		ICFSecISOCtryCcyObj origBuff = null;
+		ICFSecISOCtryCcyEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// TSecGrpMemb Attributes
-		String attrUser = null;
-		// TSecGrpMemb References
-		ICFSecTenantObj refTenant = null;
-		ICFSecTSecGroupObj refGroup = null;
-		ICFSecSecUserObj refUser = null;
+		// ISOCtryCcy Attributes
+		String attrCcy = null;
+		// ISOCtryCcy References
+		ICFSecISOCtryObj refCtry = null;
+		ICFSecISOCcyObj refCcy = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "TSecGrpMemb" );
+			assert qName.equals( "ISOCtryCcy" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -103,8 +102,8 @@ public class CFSecSaxLoaderTSecGrpMemb
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecTSecGrpMembObj)schemaObj.getTSecGrpMembTableObj().newInstance();
-			editBuff = (ICFSecTSecGrpMembEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecISOCtryCcyObj)schemaObj.getISOCtryCcyTableObj().newInstance();
+			editBuff = (ICFSecISOCtryCcyEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -119,14 +118,14 @@ public class CFSecSaxLoaderTSecGrpMemb
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "User" ) ) {
-					if( attrUser != null ) {
+				else if( attrLocalName.equals( "Ccy" ) ) {
+					if( attrCcy != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrUser = attrs.getValue( idxAttr );
+					attrCcy = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -140,17 +139,17 @@ public class CFSecSaxLoaderTSecGrpMemb
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrUser == null ) || ( attrUser.length() <= 0 ) ) {
+			if( ( attrCcy == null ) || ( attrCcy.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"User" );
+					"Ccy" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "User", attrUser );
+			curContext.putNamedValue( "Ccy", attrCcy );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -181,86 +180,69 @@ public class CFSecSaxLoaderTSecGrpMemb
 					0,
 					"scopeObj" );
 			}
-			else if( scopeObj instanceof ICFSecTSecGroupObj ) {
-				refGroup = (ICFSecTSecGroupObj) scopeObj;
-				editBuff.setRequiredContainerGroup( refGroup );
-				refTenant = (ICFSecTenantObj)editBuff.getRequiredOwnerTenant();
+			else if( scopeObj instanceof ICFSecISOCtryObj ) {
+				refCtry = (ICFSecISOCtryObj) scopeObj;
+				editBuff.setRequiredContainerCtry( refCtry );
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecTSecGroupObj" );
+					"ICFSecISOCtryObj" );
 			}
 
-			// Resolve and apply Owner reference
-
-			if( refTenant == null ) {
-				if( scopeObj instanceof ICFSecTenantObj ) {
-					refTenant = (ICFSecTenantObj) scopeObj;
-					editBuff.setRequiredOwnerTenant( refTenant );
-				}
-				else {
+			// Lookup refCcy by key name value attr
+			if( ( attrCcy != null ) && ( attrCcy.length() > 0 ) ) {
+				refCcy = (ICFSecISOCcyObj)schemaObj.getISOCcyTableObj().readISOCcyByCcyCdIdx( attrCcy );
+				if( refCcy == null ) {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Owner<Tenant>" );
-				}
-			}
-
-			// Lookup refUser by key name value attr
-			if( ( attrUser != null ) && ( attrUser.length() > 0 ) ) {
-				refUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrUser );
-				if( refUser == null ) {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Resolve User reference named \"" + attrUser + "\" to table SecUser" );
+						"Resolve Ccy reference named \"" + attrCcy + "\" to table ISOCcy" );
 				}
 			}
 			else {
-				refUser = null;
+				refCcy = null;
 			}
-			editBuff.setRequiredParentUser( refUser );
+			editBuff.setRequiredParentCcy( refCcy );
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTSecGrpMembLoaderBehaviour();
-			ICFSecTSecGrpMembEditObj editTSecGrpMemb = null;
-			ICFSecTSecGrpMembObj origTSecGrpMemb = (ICFSecTSecGrpMembObj)schemaObj.getTSecGrpMembTableObj().readTSecGrpMembByUUserIdx( refTenant.getRequiredId(),
-			refGroup.getRequiredTSecGroupId(),
-			refUser.getRequiredSecUserId() );
-			if( origTSecGrpMemb == null ) {
-				editTSecGrpMemb = editBuff;
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getISOCtryCcyLoaderBehaviour();
+			ICFSecISOCtryCcyEditObj editISOCtryCcy = null;
+			ICFSecISOCtryCcyObj origISOCtryCcy = (ICFSecISOCtryCcyObj)schemaObj.getISOCtryCcyTableObj().readISOCtryCcyByIdIdx( refCtry.getRequiredISOCtryId(),
+			refCcy.getRequiredISOCcyId() );
+			if( origISOCtryCcy == null ) {
+				editISOCtryCcy = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editTSecGrpMemb = (ICFSecTSecGrpMembEditObj)origTSecGrpMemb.beginEdit();
-						editTSecGrpMemb.setRequiredParentUser( editBuff.getRequiredParentUser() );
+						editISOCtryCcy = (ICFSecISOCtryCcyEditObj)origISOCtryCcy.beginEdit();
+						editISOCtryCcy.setRequiredParentCcy( editBuff.getRequiredParentCcy() );
 						break;
 					case Replace:
-						editTSecGrpMemb = (ICFSecTSecGrpMembEditObj)origTSecGrpMemb.beginEdit();
-						editTSecGrpMemb.deleteInstance();
-						editTSecGrpMemb = null;
-						origTSecGrpMemb = null;
-						editTSecGrpMemb = editBuff;
+						editISOCtryCcy = (ICFSecISOCtryCcyEditObj)origISOCtryCcy.beginEdit();
+						editISOCtryCcy.deleteInstance();
+						editISOCtryCcy = null;
+						origISOCtryCcy = null;
+						editISOCtryCcy = editBuff;
 						break;
 				}
 			}
 
-			if( editTSecGrpMemb != null ) {
-				if( origTSecGrpMemb != null ) {
-					editTSecGrpMemb.update();
+			if( editISOCtryCcy != null ) {
+				if( origISOCtryCcy != null ) {
+					editISOCtryCcy.update();
 				}
 				else {
-					origTSecGrpMemb = (ICFSecTSecGrpMembObj)editTSecGrpMemb.create();
+					origISOCtryCcy = (ICFSecISOCtryCcyObj)editISOCtryCcy.create();
 				}
-				editTSecGrpMemb = null;
+				editISOCtryCcy = null;
 			}
 
-			curContext.putNamedValue( "Object", origTSecGrpMemb );
+			curContext.putNamedValue( "Object", origISOCtryCcy );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

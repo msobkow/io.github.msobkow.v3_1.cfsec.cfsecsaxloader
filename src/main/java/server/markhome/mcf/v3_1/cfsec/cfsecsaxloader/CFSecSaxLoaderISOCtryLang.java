@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for SecGrpMemb
+// Description: Java 25 XML SAX Element Handler for ISOCtryLang
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderSecGrpMembParse XML SAX Element Handler implementation
- *	for SecGrpMemb.
+ *	CFSecSaxLoaderISOCtryLangParse XML SAX Element Handler implementation
+ *	for ISOCtryLang.
  */
-public class CFSecSaxLoaderSecGrpMemb
+public class CFSecSaxLoaderISOCtryLang
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderSecGrpMemb( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderISOCtryLang( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,23 +68,22 @@ public class CFSecSaxLoaderSecGrpMemb
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecSecGrpMembObj origBuff = null;
-		ICFSecSecGrpMembEditObj editBuff = null;
+		ICFSecISOCtryLangObj origBuff = null;
+		ICFSecISOCtryLangEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// SecGrpMemb Attributes
-		String attrUser = null;
-		// SecGrpMemb References
-		ICFSecClusterObj refCluster = null;
-		ICFSecSecGroupObj refGroup = null;
-		ICFSecSecUserObj refUser = null;
+		// ISOCtryLang Attributes
+		String attrLang = null;
+		// ISOCtryLang References
+		ICFSecISOCtryObj refCtry = null;
+		ICFSecISOLangObj refLang = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "SecGrpMemb" );
+			assert qName.equals( "ISOCtryLang" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -103,8 +102,8 @@ public class CFSecSaxLoaderSecGrpMemb
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecSecGrpMembObj)schemaObj.getSecGrpMembTableObj().newInstance();
-			editBuff = (ICFSecSecGrpMembEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecISOCtryLangObj)schemaObj.getISOCtryLangTableObj().newInstance();
+			editBuff = (ICFSecISOCtryLangEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -119,14 +118,14 @@ public class CFSecSaxLoaderSecGrpMemb
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "User" ) ) {
-					if( attrUser != null ) {
+				else if( attrLocalName.equals( "Lang" ) ) {
+					if( attrLang != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrUser = attrs.getValue( idxAttr );
+					attrLang = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -140,17 +139,17 @@ public class CFSecSaxLoaderSecGrpMemb
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrUser == null ) || ( attrUser.length() <= 0 ) ) {
+			if( ( attrLang == null ) || ( attrLang.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"User" );
+					"Lang" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "User", attrUser );
+			curContext.putNamedValue( "Lang", attrLang );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -181,86 +180,69 @@ public class CFSecSaxLoaderSecGrpMemb
 					0,
 					"scopeObj" );
 			}
-			else if( scopeObj instanceof ICFSecSecGroupObj ) {
-				refGroup = (ICFSecSecGroupObj) scopeObj;
-				editBuff.setRequiredContainerGroup( refGroup );
-				refCluster = (ICFSecClusterObj)editBuff.getRequiredOwnerCluster();
+			else if( scopeObj instanceof ICFSecISOCtryObj ) {
+				refCtry = (ICFSecISOCtryObj) scopeObj;
+				editBuff.setRequiredContainerCtry( refCtry );
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecSecGroupObj" );
+					"ICFSecISOCtryObj" );
 			}
 
-			// Resolve and apply Owner reference
-
-			if( refCluster == null ) {
-				if( scopeObj instanceof ICFSecClusterObj ) {
-					refCluster = (ICFSecClusterObj) scopeObj;
-					editBuff.setRequiredOwnerCluster( refCluster );
-				}
-				else {
+			// Lookup refLang by key name value attr
+			if( ( attrLang != null ) && ( attrLang.length() > 0 ) ) {
+				refLang = (ICFSecISOLangObj)schemaObj.getISOLangTableObj().readISOLangByCode3Idx( attrLang );
+				if( refLang == null ) {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Owner<Cluster>" );
-				}
-			}
-
-			// Lookup refUser by key name value attr
-			if( ( attrUser != null ) && ( attrUser.length() > 0 ) ) {
-				refUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrUser );
-				if( refUser == null ) {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Resolve User reference named \"" + attrUser + "\" to table SecUser" );
+						"Resolve Lang reference named \"" + attrLang + "\" to table ISOLang" );
 				}
 			}
 			else {
-				refUser = null;
+				refLang = null;
 			}
-			editBuff.setRequiredParentUser( refUser );
+			editBuff.setRequiredParentLang( refLang );
 
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecGrpMembLoaderBehaviour();
-			ICFSecSecGrpMembEditObj editSecGrpMemb = null;
-			ICFSecSecGrpMembObj origSecGrpMemb = (ICFSecSecGrpMembObj)schemaObj.getSecGrpMembTableObj().readSecGrpMembByUUserIdx( refCluster.getRequiredId(),
-			refGroup.getRequiredSecGroupId(),
-			refUser.getRequiredSecUserId() );
-			if( origSecGrpMemb == null ) {
-				editSecGrpMemb = editBuff;
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getISOCtryLangLoaderBehaviour();
+			ICFSecISOCtryLangEditObj editISOCtryLang = null;
+			ICFSecISOCtryLangObj origISOCtryLang = (ICFSecISOCtryLangObj)schemaObj.getISOCtryLangTableObj().readISOCtryLangByIdIdx( refCtry.getRequiredISOCtryId(),
+			refLang.getRequiredISOLangId() );
+			if( origISOCtryLang == null ) {
+				editISOCtryLang = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editSecGrpMemb = (ICFSecSecGrpMembEditObj)origSecGrpMemb.beginEdit();
-						editSecGrpMemb.setRequiredParentUser( editBuff.getRequiredParentUser() );
+						editISOCtryLang = (ICFSecISOCtryLangEditObj)origISOCtryLang.beginEdit();
+						editISOCtryLang.setRequiredParentLang( editBuff.getRequiredParentLang() );
 						break;
 					case Replace:
-						editSecGrpMemb = (ICFSecSecGrpMembEditObj)origSecGrpMemb.beginEdit();
-						editSecGrpMemb.deleteInstance();
-						editSecGrpMemb = null;
-						origSecGrpMemb = null;
-						editSecGrpMemb = editBuff;
+						editISOCtryLang = (ICFSecISOCtryLangEditObj)origISOCtryLang.beginEdit();
+						editISOCtryLang.deleteInstance();
+						editISOCtryLang = null;
+						origISOCtryLang = null;
+						editISOCtryLang = editBuff;
 						break;
 				}
 			}
 
-			if( editSecGrpMemb != null ) {
-				if( origSecGrpMemb != null ) {
-					editSecGrpMemb.update();
+			if( editISOCtryLang != null ) {
+				if( origISOCtryLang != null ) {
+					editISOCtryLang.update();
 				}
 				else {
-					origSecGrpMemb = (ICFSecSecGrpMembObj)editSecGrpMemb.create();
+					origISOCtryLang = (ICFSecISOCtryLangObj)editISOCtryLang.create();
 				}
-				editSecGrpMemb = null;
+				editISOCtryLang = null;
 			}
 
-			curContext.putNamedValue( "Object", origSecGrpMemb );
+			curContext.putNamedValue( "Object", origISOCtryLang );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

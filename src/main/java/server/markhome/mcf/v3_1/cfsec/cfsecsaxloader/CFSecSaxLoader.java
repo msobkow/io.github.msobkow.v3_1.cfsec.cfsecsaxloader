@@ -1,7 +1,7 @@
 // Description: Java 25 XML SAX Parser for CFSec.
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -32,7 +32,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,10 +49,10 @@ import javax.sql.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
 
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 public class CFSecSaxLoader
 	extends CFLibXmlCoreSaxParser
@@ -60,11 +60,11 @@ public class CFSecSaxLoader
 {
 
 	// The namespace URI of the supported schema
-	public final static String	SCHEMA_XMLNS = "https://msobkow.github.io/msobkow/v3_1/xsd/cfsec-structured.xsd";
+	public final static String	SCHEMA_XMLNS = "https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd";
 
 	// The source for loading the supported schema
-	public final static String	SCHEMA_URI = "https://msobkow.github.io/msobkow/v3_1/xsd/cfsec-structured.xsd";
-	public final static String	SCHEMA_ROOT_URI = "https://msobkow.github.io/msobkow/v3_1/xsd/cfsec-structured.xsd";
+	public final static String	SCHEMA_URI = "https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd";
+	public final static String	SCHEMA_ROOT_URI = "https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd";
 
 	// The schema instance to load in to
 

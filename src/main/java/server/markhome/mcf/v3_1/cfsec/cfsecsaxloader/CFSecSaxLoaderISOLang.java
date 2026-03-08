@@ -1,8 +1,8 @@
 
-// Description: Java 25 XML SAX Element Handler for SysCluster
+// Description: Java 25 XML SAX Element Handler for ISOLang
 
 /*
- *	io.github.msobkow.CFSec
+ *	server.markhome.mcf.CFSec
  *
  *	Copyright (c) 2016-2026 Mark Stephen Sobkow
  *	
@@ -33,7 +33,7 @@
  *	
  */
 
-package io.github.msobkow.v3_1.cfsec.cfsecsaxloader;
+package server.markhome.mcf.v3_1.cfsec.cfsecsaxloader;
 
 import java.math.*;
 import java.sql.*;
@@ -42,21 +42,21 @@ import java.time.*;
 import java.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.xml.sax.*;
-import io.github.msobkow.v3_1.cflib.*;
-import io.github.msobkow.v3_1.cflib.dbutil.*;
-import io.github.msobkow.v3_1.cflib.inz.Inz;
-import io.github.msobkow.v3_1.cflib.xml.*;
-import io.github.msobkow.v3_1.cfsec.cfsec.*;
-import io.github.msobkow.v3_1.cfsec.cfsecobj.*;
+import server.markhome.mcf.v3_1.cflib.*;
+import server.markhome.mcf.v3_1.cflib.dbutil.*;
+import server.markhome.mcf.v3_1.cflib.inz.Inz;
+import server.markhome.mcf.v3_1.cflib.xml.*;
+import server.markhome.mcf.v3_1.cfsec.cfsec.*;
+import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderSysClusterParse XML SAX Element Handler implementation
- *	for SysCluster.
+ *	CFSecSaxLoaderISOLangParse XML SAX Element Handler implementation
+ *	for ISOLang.
  */
-public class CFSecSaxLoaderSysCluster
+public class CFSecSaxLoaderISOLang
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderSysCluster( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderISOLang( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -68,20 +68,22 @@ public class CFSecSaxLoaderSysCluster
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecSysClusterObj origBuff = null;
-		ICFSecSysClusterEditObj editBuff = null;
+		ICFSecISOLangObj origBuff = null;
+		ICFSecISOLangEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// SysCluster Attributes
-		// SysCluster References
-		ICFSecClusterObj refCluster = null;
+		// ISOLang Attributes
+		String attrISO6392Code = null;
+		String attrISO6391Code = null;
+		String attrEnglishName = null;
+		// ISOLang References
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "SysCluster" );
+			assert qName.equals( "ISOLang" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -100,8 +102,8 @@ public class CFSecSaxLoaderSysCluster
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecSysClusterObj)schemaObj.getSysClusterTableObj().newInstance();
-			editBuff = (ICFSecSysClusterEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecISOLangObj)schemaObj.getISOLangTableObj().newInstance();
+			editBuff = (ICFSecISOLangEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -116,6 +118,33 @@ public class CFSecSaxLoaderSysCluster
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
+				else if( attrLocalName.equals( "ISO6392Code" ) ) {
+					if( attrISO6392Code != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrISO6392Code = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "ISO6391Code" ) ) {
+					if( attrISO6391Code != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrISO6391Code = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "EnglishName" ) ) {
+					if( attrEnglishName != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrEnglishName = attrs.getValue( idxAttr );
+				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -128,10 +157,25 @@ public class CFSecSaxLoaderSysCluster
 			}
 
 			// Ensure that required attributes have values
+			if( attrISO6392Code == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"ISO6392Code" );
+			}
+			if( attrEnglishName == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"EnglishName" );
+			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
+			curContext.putNamedValue( "ISO6392Code", attrISO6392Code );
+			curContext.putNamedValue( "ISO6391Code", attrISO6391Code );
+			curContext.putNamedValue( "EnglishName", attrEnglishName );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -143,6 +187,15 @@ public class CFSecSaxLoaderSysCluster
 			else {
 				natId = null;
 			}
+			String natISO6392Code = attrISO6392Code;
+			editBuff.setRequiredISO6392Code( natISO6392Code );
+
+			String natISO6391Code = attrISO6391Code;
+			editBuff.setOptionalISO6391Code( natISO6391Code );
+
+			String natEnglishName = attrEnglishName;
+			editBuff.setRequiredEnglishName( natEnglishName );
+
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -154,32 +207,43 @@ public class CFSecSaxLoaderSysCluster
 				scopeObj = null;
 			}
 
-			// Resolve and apply required Container reference
-
-			if( scopeObj == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"scopeObj" );
-			}
-			else if( scopeObj instanceof ICFSecClusterObj ) {
-				refCluster = (ICFSecClusterObj) scopeObj;
-				editBuff.setRequiredContainerCluster( refCluster );
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getISOLangLoaderBehaviour();
+			ICFSecISOLangEditObj editISOLang = null;
+			ICFSecISOLangObj origISOLang = (ICFSecISOLangObj)schemaObj.getISOLangTableObj().readISOLangByCode3Idx( editBuff.getRequiredISO6392Code() );
+			if( origISOLang == null ) {
+				editISOLang = editBuff;
 			}
 			else {
-				throw new CFLibUnsupportedClassException( getClass(),
-					S_ProcName,
-					"scopeObj",
-					scopeObj,
-					"ICFSecClusterObj" );
+				switch( loaderBehaviour ) {
+					case Insert:
+						break;
+					case Update:
+						editISOLang = (ICFSecISOLangEditObj)origISOLang.beginEdit();
+						editISOLang.setRequiredISO6392Code( editBuff.getRequiredISO6392Code() );
+						editISOLang.setOptionalISO6391Code( editBuff.getOptionalISO6391Code() );
+						editISOLang.setRequiredEnglishName( editBuff.getRequiredEnglishName() );
+						break;
+					case Replace:
+						editISOLang = (ICFSecISOLangEditObj)origISOLang.beginEdit();
+						editISOLang.deleteInstance();
+						editISOLang = null;
+						origISOLang = null;
+						editISOLang = editBuff;
+						break;
+				}
 			}
 
-			ICFSecSysClusterObj origSysCluster;
-			ICFSecSysClusterEditObj editSysCluster = editBuff;
-			origSysCluster = (ICFSecSysClusterObj)editSysCluster.create();
-			editSysCluster = null;
+			if( editISOLang != null ) {
+				if( origISOLang != null ) {
+					editISOLang.update();
+				}
+				else {
+					origISOLang = (ICFSecISOLangObj)editISOLang.create();
+				}
+				editISOLang = null;
+			}
 
-			curContext.putNamedValue( "Object", origSysCluster );
+			curContext.putNamedValue( "Object", origISOLang );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),
