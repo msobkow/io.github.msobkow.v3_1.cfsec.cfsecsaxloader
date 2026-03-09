@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsd:schema xmlns="https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd" version="3.1">
-<xs:import namespace="https://mcf.markhome.server/msobkow/v3_1/xsd/cflibdbutil-3.1.xsd" schemaLocation="https://mcf.markhome.server/msobkow/v3_1/xsd/cflibdbutil-3.1.xsd"/>
+<xsd:schema xmlns="http://mcf.markhome.server/mcf/v3_1/xsd/cfsec-structured.xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" targetNamespace="http://mcf.markhome.server/mcf/v3_1/xsd/cfsec-structured.xsd" version="3.1">
+<xs:import namespace="http://mcf.markhome.server/mcf/v3_1/xsd/cflibdbutil-3.1.xsd" schemaLocation="http://mcf.markhome.server/mcf/v3_1/xsd/cflibdbutil-3.1.xsd"/>
 
 
 <xsd:annotation>

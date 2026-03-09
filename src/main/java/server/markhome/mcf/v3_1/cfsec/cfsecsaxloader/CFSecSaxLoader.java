@@ -60,11 +60,11 @@ public class CFSecSaxLoader
 {
 
 	// The namespace URI of the supported schema
-	public final static String	SCHEMA_XMLNS = "https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd";
+	public final static String	SCHEMA_XMLNS = "http://mcf.markhome.server/mcf/v3_1/xsd/cfsec-structured.xsd";
 
 	// The source for loading the supported schema
-	public final static String	SCHEMA_URI = "https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd";
-	public final static String	SCHEMA_ROOT_URI = "https://mcf.markhome.server/mcf/xsd/v3_1/cfsec-structured.xsd";
+	public final static String	SCHEMA_URI = "http://mcf.markhome.server/mcf/v3_1/xsd/cfsec-structured.xsd";
+	public final static String	SCHEMA_ROOT_URI = "http://mcf.markhome.server/mcf/v3_1/xsd/cfsec-structured.xsd";
 
 	// The schema instance to load in to
 
