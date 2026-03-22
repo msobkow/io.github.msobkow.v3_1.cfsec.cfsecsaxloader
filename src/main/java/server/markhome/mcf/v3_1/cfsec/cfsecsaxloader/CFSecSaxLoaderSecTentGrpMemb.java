@@ -1,5 +1,5 @@
 
-// Description: Java 25 XML SAX Element Handler for TSecGroup
+// Description: Java 25 XML SAX Element Handler for SecTentGrpMemb
 
 /*
  *	server.markhome.mcf.CFSec
@@ -43,13 +43,13 @@ import server.markhome.mcf.v3_1.cfsec.cfsec.*;
 import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderTSecGroupParse XML SAX Element Handler implementation
- *	for TSecGroup.
+ *	CFSecSaxLoaderSecTentGrpMembParse XML SAX Element Handler implementation
+ *	for SecTentGrpMemb.
  */
-public class CFSecSaxLoaderTSecGroup
+public class CFSecSaxLoaderSecTentGrpMemb
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderTSecGroup( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSecTentGrpMemb( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -61,22 +61,19 @@ public class CFSecSaxLoaderTSecGroup
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecTSecGroupObj origBuff = null;
-		ICFSecTSecGroupEditObj editBuff = null;
+		ICFSecSecTentGrpMembObj origBuff = null;
+		ICFSecSecTentGrpMembEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// TSecGroup Attributes
-		String attrName = null;
-		String attrIsVisible = null;
-		// TSecGroup References
-		ICFSecTenantObj refTenant = null;
+		// SecTentGrpMemb Attributes
+		// SecTentGrpMemb References
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "TSecGroup" );
+			assert qName.equals( "SecTentGrpMemb" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -95,8 +92,8 @@ public class CFSecSaxLoaderTSecGroup
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecTSecGroupObj)schemaObj.getTSecGroupTableObj().newInstance();
-			editBuff = (ICFSecTSecGroupEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSecTentGrpMembObj)schemaObj.getSecTentGrpMembTableObj().newInstance();
+			editBuff = (ICFSecSecTentGrpMembEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -111,24 +108,6 @@ public class CFSecSaxLoaderTSecGroup
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "Name" ) ) {
-					if( attrName != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrName = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "IsVisible" ) ) {
-					if( attrIsVisible != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrIsVisible = attrs.getValue( idxAttr );
-				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -141,24 +120,10 @@ public class CFSecSaxLoaderTSecGroup
 			}
 
 			// Ensure that required attributes have values
-			if( attrName == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"Name" );
-			}
-			if( ( attrIsVisible == null ) || ( attrIsVisible.length() <= 0 ) ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"IsVisible" );
-			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "Name", attrName );
-			curContext.putNamedValue( "IsVisible", attrIsVisible );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -170,24 +135,6 @@ public class CFSecSaxLoaderTSecGroup
 			else {
 				natId = null;
 			}
-			String natName = attrName;
-			editBuff.setRequiredName( natName );
-
-			boolean natIsVisible;
-			if( attrIsVisible.equals( "true" ) || attrIsVisible.equals( "yes" ) || attrIsVisible.equals( "1" ) ) {
-				natIsVisible = true;
-			}
-			else if( attrIsVisible.equals( "false" ) || attrIsVisible.equals( "no" ) || attrIsVisible.equals( "0" ) ) {
-				natIsVisible = false;
-			}
-			else {
-				throw new CFLibUsageException( getClass(),
-					S_ProcName,
-					String.format(Inz.x("cflib.xml.CFLibXmlUtil.XmlBooleanInvalid"), "IsVisible", attrIsVisible),
-					String.format(Inz.s("cflib.xml.CFLibXmlUtil.XmlBooleanInvalid"), "IsVisible", attrIsVisible));
-			}
-			editBuff.setRequiredIsVisible( natIsVisible );
-
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -199,63 +146,41 @@ public class CFSecSaxLoaderTSecGroup
 				scopeObj = null;
 			}
 
-			// Resolve and apply required Container reference
-
-			if( scopeObj == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"scopeObj" );
-			}
-			else if( scopeObj instanceof ICFSecTenantObj ) {
-				refTenant = (ICFSecTenantObj) scopeObj;
-				editBuff.setRequiredContainerTenant( refTenant );
-			}
-			else {
-				throw new CFLibUnsupportedClassException( getClass(),
-					S_ProcName,
-					"scopeObj",
-					scopeObj,
-					"ICFSecTenantObj" );
-			}
-
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTSecGroupLoaderBehaviour();
-			ICFSecTSecGroupEditObj editTSecGroup = null;
-			ICFSecTSecGroupObj origTSecGroup = (ICFSecTSecGroupObj)schemaObj.getTSecGroupTableObj().readTSecGroupByUNameIdx( refTenant.getRequiredId(),
-			editBuff.getRequiredName() );
-			if( origTSecGroup == null ) {
-				editTSecGroup = editBuff;
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecTentGrpMembLoaderBehaviour();
+			ICFSecSecTentGrpMembEditObj editSecTentGrpMemb = null;
+			ICFSecSecTentGrpMembObj origSecTentGrpMemb = (ICFSecSecTentGrpMembObj)schemaObj.getSecTentGrpMembTableObj().readSecTentGrpMembByIdIdx( editBuff.getRequiredSecTentGrpId(),
+			editBuff.getRequiredSecUserId() );
+			if( origSecTentGrpMemb == null ) {
+				editSecTentGrpMemb = editBuff;
 			}
 			else {
 				switch( loaderBehaviour ) {
 					case Insert:
 						break;
 					case Update:
-						editTSecGroup = (ICFSecTSecGroupEditObj)origTSecGroup.beginEdit();
-						editTSecGroup.setRequiredName( editBuff.getRequiredName() );
-						editTSecGroup.setRequiredIsVisible( editBuff.getRequiredIsVisible() );
+						editSecTentGrpMemb = (ICFSecSecTentGrpMembEditObj)origSecTentGrpMemb.beginEdit();
 						break;
 					case Replace:
-						editTSecGroup = (ICFSecTSecGroupEditObj)origTSecGroup.beginEdit();
-						editTSecGroup.deleteInstance();
-						editTSecGroup = null;
-						origTSecGroup = null;
-						editTSecGroup = editBuff;
+						editSecTentGrpMemb = (ICFSecSecTentGrpMembEditObj)origSecTentGrpMemb.beginEdit();
+						editSecTentGrpMemb.deleteInstance();
+						editSecTentGrpMemb = null;
+						origSecTentGrpMemb = null;
+						editSecTentGrpMemb = editBuff;
 						break;
 				}
 			}
 
-			if( editTSecGroup != null ) {
-				if( origTSecGroup != null ) {
-					editTSecGroup.update();
+			if( editSecTentGrpMemb != null ) {
+				if( origSecTentGrpMemb != null ) {
+					editSecTentGrpMemb.update();
 				}
 				else {
-					origTSecGroup = (ICFSecTSecGroupObj)editTSecGroup.create();
+					origSecTentGrpMemb = (ICFSecSecTentGrpMembObj)editSecTentGrpMemb.create();
 				}
-				editTSecGroup = null;
+				editSecTentGrpMemb = null;
 			}
 
-			curContext.putNamedValue( "Object", origTSecGroup );
+			curContext.putNamedValue( "Object", origSecTentGrpMemb );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

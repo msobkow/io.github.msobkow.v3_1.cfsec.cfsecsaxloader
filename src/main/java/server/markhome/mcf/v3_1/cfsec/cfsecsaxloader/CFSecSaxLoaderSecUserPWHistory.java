@@ -1,5 +1,5 @@
 
-// Description: Java 25 XML SAX Element Handler for TSecGrpMemb
+// Description: Java 25 XML SAX Element Handler for SecUserPWHistory
 
 /*
  *	server.markhome.mcf.CFSec
@@ -43,13 +43,13 @@ import server.markhome.mcf.v3_1.cfsec.cfsec.*;
 import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderTSecGrpMembParse XML SAX Element Handler implementation
- *	for TSecGrpMemb.
+ *	CFSecSaxLoaderSecUserPWHistoryParse XML SAX Element Handler implementation
+ *	for SecUserPWHistory.
  */
-public class CFSecSaxLoaderTSecGrpMemb
+public class CFSecSaxLoaderSecUserPWHistory
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderTSecGrpMemb( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSecUserPWHistory( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -61,23 +61,21 @@ public class CFSecSaxLoaderTSecGrpMemb
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecTSecGrpMembObj origBuff = null;
-		ICFSecTSecGrpMembEditObj editBuff = null;
+		ICFSecSecUserPWHistoryObj origBuff = null;
+		ICFSecSecUserPWHistoryEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// TSecGrpMemb Attributes
-		String attrUser = null;
-		// TSecGrpMemb References
-		ICFSecTenantObj refTenant = null;
-		ICFSecTSecGroupObj refGroup = null;
-		ICFSecSecUserObj refUser = null;
+		// SecUserPWHistory Attributes
+		String attrPWReplacedStamp = null;
+		String attrPasswordHash = null;
+		// SecUserPWHistory References
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "TSecGrpMemb" );
+			assert qName.equals( "SecUserPWHistory" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -96,8 +94,8 @@ public class CFSecSaxLoaderTSecGrpMemb
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecTSecGrpMembObj)schemaObj.getTSecGrpMembTableObj().newInstance();
-			editBuff = (ICFSecTSecGrpMembEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSecUserPWHistoryObj)schemaObj.getSecUserPWHistoryTableObj().newInstance();
+			editBuff = (ICFSecSecUserPWHistoryEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -112,14 +110,23 @@ public class CFSecSaxLoaderTSecGrpMemb
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "User" ) ) {
-					if( attrUser != null ) {
+				else if( attrLocalName.equals( "PWReplacedStamp" ) ) {
+					if( attrPWReplacedStamp != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrUser = attrs.getValue( idxAttr );
+					attrPWReplacedStamp = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "PasswordHash" ) ) {
+					if( attrPasswordHash != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrPasswordHash = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -133,17 +140,24 @@ public class CFSecSaxLoaderTSecGrpMemb
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrUser == null ) || ( attrUser.length() <= 0 ) ) {
+			if( ( attrPWReplacedStamp == null ) || ( attrPWReplacedStamp.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"User" );
+					"PWReplacedStamp" );
+			}
+			if( attrPasswordHash == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"PasswordHash" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "User", attrUser );
+			curContext.putNamedValue( "PWReplacedStamp", attrPWReplacedStamp );
+			curContext.putNamedValue( "PasswordHash", attrPasswordHash );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -155,6 +169,22 @@ public class CFSecSaxLoaderTSecGrpMemb
 			else {
 				natId = null;
 			}
+			LocalDateTime natPWReplacedStamp;
+			try {
+				natPWReplacedStamp = CFLibXmlUtil.parseTimestamp( attrPWReplacedStamp );
+			}
+			catch( RuntimeException e ) {
+				throw new CFLibInvalidArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"PWReplacedStamp",
+					e );
+			}
+			editBuff.setRequiredPWReplacedStamp( natPWReplacedStamp );
+
+			String natPasswordHash = attrPasswordHash;
+			editBuff.setRequiredPasswordHash( natPasswordHash );
+
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -166,94 +196,12 @@ public class CFSecSaxLoaderTSecGrpMemb
 				scopeObj = null;
 			}
 
-			// Resolve and apply required Container reference
+			ICFSecSecUserPWHistoryObj origSecUserPWHistory;
+			ICFSecSecUserPWHistoryEditObj editSecUserPWHistory = editBuff;
+			origSecUserPWHistory = (ICFSecSecUserPWHistoryObj)editSecUserPWHistory.create();
+			editSecUserPWHistory = null;
 
-			if( scopeObj == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"scopeObj" );
-			}
-			else if( scopeObj instanceof ICFSecTSecGroupObj ) {
-				refGroup = (ICFSecTSecGroupObj) scopeObj;
-				editBuff.setRequiredContainerGroup( refGroup );
-				refTenant = (ICFSecTenantObj)editBuff.getRequiredOwnerTenant();
-			}
-			else {
-				throw new CFLibUnsupportedClassException( getClass(),
-					S_ProcName,
-					"scopeObj",
-					scopeObj,
-					"ICFSecTSecGroupObj" );
-			}
-
-			// Resolve and apply Owner reference
-
-			if( refTenant == null ) {
-				if( scopeObj instanceof ICFSecTenantObj ) {
-					refTenant = (ICFSecTenantObj) scopeObj;
-					editBuff.setRequiredOwnerTenant( refTenant );
-				}
-				else {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Owner<Tenant>" );
-				}
-			}
-
-			// Lookup refUser by key name value attr
-			if( ( attrUser != null ) && ( attrUser.length() > 0 ) ) {
-				refUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrUser );
-				if( refUser == null ) {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Resolve User reference named \"" + attrUser + "\" to table SecUser" );
-				}
-			}
-			else {
-				refUser = null;
-			}
-			editBuff.setRequiredParentUser( refUser );
-
-			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTSecGrpMembLoaderBehaviour();
-			ICFSecTSecGrpMembEditObj editTSecGrpMemb = null;
-			ICFSecTSecGrpMembObj origTSecGrpMemb = (ICFSecTSecGrpMembObj)schemaObj.getTSecGrpMembTableObj().readTSecGrpMembByUUserIdx( refTenant.getRequiredId(),
-			refGroup.getRequiredTSecGroupId(),
-			refUser.getRequiredSecUserId() );
-			if( origTSecGrpMemb == null ) {
-				editTSecGrpMemb = editBuff;
-			}
-			else {
-				switch( loaderBehaviour ) {
-					case Insert:
-						break;
-					case Update:
-						editTSecGrpMemb = (ICFSecTSecGrpMembEditObj)origTSecGrpMemb.beginEdit();
-						editTSecGrpMemb.setRequiredParentUser( editBuff.getRequiredParentUser() );
-						break;
-					case Replace:
-						editTSecGrpMemb = (ICFSecTSecGrpMembEditObj)origTSecGrpMemb.beginEdit();
-						editTSecGrpMemb.deleteInstance();
-						editTSecGrpMemb = null;
-						origTSecGrpMemb = null;
-						editTSecGrpMemb = editBuff;
-						break;
-				}
-			}
-
-			if( editTSecGrpMemb != null ) {
-				if( origTSecGrpMemb != null ) {
-					editTSecGrpMemb.update();
-				}
-				else {
-					origTSecGrpMemb = (ICFSecTSecGrpMembObj)editTSecGrpMemb.create();
-				}
-				editTSecGrpMemb = null;
-			}
-
-			curContext.putNamedValue( "Object", origTSecGrpMemb );
+			curContext.putNamedValue( "Object", origSecUserPWHistory );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

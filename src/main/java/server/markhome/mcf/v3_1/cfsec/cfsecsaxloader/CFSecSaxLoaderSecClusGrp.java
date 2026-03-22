@@ -1,5 +1,5 @@
 
-// Description: Java 25 XML SAX Element Handler for SecSession
+// Description: Java 25 XML SAX Element Handler for SecClusGrp
 
 /*
  *	server.markhome.mcf.CFSec
@@ -43,13 +43,13 @@ import server.markhome.mcf.v3_1.cfsec.cfsec.*;
 import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderSecSessionParse XML SAX Element Handler implementation
- *	for SecSession.
+ *	CFSecSaxLoaderSecClusGrpParse XML SAX Element Handler implementation
+ *	for SecClusGrp.
  */
-public class CFSecSaxLoaderSecSession
+public class CFSecSaxLoaderSecClusGrp
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderSecSession( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSecClusGrp( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -61,23 +61,21 @@ public class CFSecSaxLoaderSecSession
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecSecSessionObj origBuff = null;
-		ICFSecSecSessionEditObj editBuff = null;
+		ICFSecSecClusGrpObj origBuff = null;
+		ICFSecSecClusGrpEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// SecSession Attributes
-		String attrSecUserId = null;
-		String attrStart = null;
-		String attrFinish = null;
-		String attrSecProxyId = null;
-		// SecSession References
+		// SecClusGrp Attributes
+		String attrName = null;
+		// SecClusGrp References
+		ICFSecClusterObj refCluster = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "SecSession" );
+			assert qName.equals( "SecClusGrp" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -96,8 +94,8 @@ public class CFSecSaxLoaderSecSession
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecSecSessionObj)schemaObj.getSecSessionTableObj().newInstance();
-			editBuff = (ICFSecSecSessionEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSecClusGrpObj)schemaObj.getSecClusGrpTableObj().newInstance();
+			editBuff = (ICFSecSecClusGrpEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -112,41 +110,14 @@ public class CFSecSaxLoaderSecSession
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "SecUserId" ) ) {
-					if( attrSecUserId != null ) {
+				else if( attrLocalName.equals( "Name" ) ) {
+					if( attrName != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrSecUserId = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "Start" ) ) {
-					if( attrStart != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrStart = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "Finish" ) ) {
-					if( attrFinish != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrFinish = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "SecProxyId" ) ) {
-					if( attrSecProxyId != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrSecProxyId = attrs.getValue( idxAttr );
+					attrName = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -160,26 +131,17 @@ public class CFSecSaxLoaderSecSession
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrSecUserId == null ) || ( attrSecUserId.length() <= 0 ) ) {
+			if( attrName == null ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"SecUserId" );
-			}
-			if( ( attrStart == null ) || ( attrStart.length() <= 0 ) ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"Start" );
+					"Name" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "SecUserId", attrSecUserId );
-			curContext.putNamedValue( "Start", attrStart );
-			curContext.putNamedValue( "Finish", attrFinish );
-			curContext.putNamedValue( "SecProxyId", attrSecProxyId );
+			curContext.putNamedValue( "Name", attrName );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -191,67 +153,8 @@ public class CFSecSaxLoaderSecSession
 			else {
 				natId = null;
 			}
-			CFLibDbKeyHash256 natSecUserId;
-			try {
-				natSecUserId = CFLibDbKeyHash256.fromHex( attrSecUserId );
-			}
-			catch( RuntimeException e ) {
-				throw new CFLibInvalidArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"SecUserId",
-					e );
-			}
-			editBuff.setRequiredSecUserId( natSecUserId );
-
-			LocalDateTime natStart;
-			try {
-				natStart = CFLibXmlUtil.parseTimestamp( attrStart );
-			}
-			catch( RuntimeException e ) {
-				throw new CFLibInvalidArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"Start",
-					e );
-			}
-			editBuff.setRequiredStart( natStart );
-
-			LocalDateTime natFinish;
-			if( ( attrFinish == null ) || ( attrFinish.length() <= 0 ) ) {
-				natFinish = null;
-			}
-			else {
-				try {
-					natFinish = CFLibXmlUtil.parseTimestamp( attrFinish );
-				}
-				catch( RuntimeException e ) {
-					throw new CFLibInvalidArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Finish",
-						e );
-				}
-			}
-			editBuff.setOptionalFinish( natFinish );
-
-			CFLibDbKeyHash256 natSecProxyId;
-			if( ( attrSecProxyId == null ) || ( attrSecProxyId.length() <= 0 ) ) {
-				natSecProxyId = null;
-			}
-			else {
-				try {
-					natSecProxyId = CFLibDbKeyHash256.fromHex( attrSecProxyId );
-				}
-				catch( RuntimeException e ) {
-					throw new CFLibInvalidArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"SecProxyId",
-						e );
-				}
-			}
-			editBuff.setOptionalSecProxyId( natSecProxyId );
+			String natName = attrName;
+			editBuff.setRequiredName( natName );
 
 			// Get the scope/container object
 
@@ -264,12 +167,58 @@ public class CFSecSaxLoaderSecSession
 				scopeObj = null;
 			}
 
-			ICFSecSecSessionObj origSecSession;
-			ICFSecSecSessionEditObj editSecSession = editBuff;
-			origSecSession = (ICFSecSecSessionObj)editSecSession.create();
-			editSecSession = null;
+			refCluster = null;
+			// Resolve and apply Owner reference
 
-			curContext.putNamedValue( "Object", origSecSession );
+			if( refCluster == null ) {
+				if( scopeObj instanceof ICFSecClusterObj ) {
+					refCluster = (ICFSecClusterObj) scopeObj;
+					editBuff.setRequiredOwnerCluster( refCluster );
+				}
+				else {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Owner<Cluster>" );
+				}
+			}
+
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecClusGrpLoaderBehaviour();
+			ICFSecSecClusGrpEditObj editSecClusGrp = null;
+			ICFSecSecClusGrpObj origSecClusGrp = (ICFSecSecClusGrpObj)schemaObj.getSecClusGrpTableObj().readSecClusGrpByUNameIdx( refCluster.getRequiredId(),
+			editBuff.getRequiredName() );
+			if( origSecClusGrp == null ) {
+				editSecClusGrp = editBuff;
+			}
+			else {
+				switch( loaderBehaviour ) {
+					case Insert:
+						break;
+					case Update:
+						editSecClusGrp = (ICFSecSecClusGrpEditObj)origSecClusGrp.beginEdit();
+						editSecClusGrp.setRequiredName( editBuff.getRequiredName() );
+						break;
+					case Replace:
+						editSecClusGrp = (ICFSecSecClusGrpEditObj)origSecClusGrp.beginEdit();
+						editSecClusGrp.deleteInstance();
+						editSecClusGrp = null;
+						origSecClusGrp = null;
+						editSecClusGrp = editBuff;
+						break;
+				}
+			}
+
+			if( editSecClusGrp != null ) {
+				if( origSecClusGrp != null ) {
+					editSecClusGrp.update();
+				}
+				else {
+					origSecClusGrp = (ICFSecSecClusGrpObj)editSecClusGrp.create();
+				}
+				editSecClusGrp = null;
+			}
+
+			curContext.putNamedValue( "Object", origSecClusGrp );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),
