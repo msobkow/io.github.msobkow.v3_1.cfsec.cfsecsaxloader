@@ -202,8 +202,7 @@ public class CFSecSaxLoaderSecSysGrpMemb
 
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecSysGrpMembLoaderBehaviour();
 			ICFSecSecSysGrpMembEditObj editSecSysGrpMemb = null;
-			ICFSecSecSysGrpMembObj origSecSysGrpMemb = (ICFSecSecSysGrpMembObj)schemaObj.getSecSysGrpMembTableObj().readSecSysGrpMembByIdIdx( refGroup.getRequiredSecSysGrpId(),
-			refUser.getRequiredSecUserId() );
+			ICFSecSecSysGrpMembObj origSecSysGrpMemb = (ICFSecSecSysGrpMembObj)schemaObj.getSecSysGrpMembTableObj().readSecSysGrpMembByUserIdx( refUser.getRequiredSecUserId() );
 			if( origSecSysGrpMemb == null ) {
 				editSecSysGrpMemb = editBuff;
 			}

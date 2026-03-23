@@ -31,6 +31,7 @@
 		<xsd:minLength value="1"/>
 		<xsd:maxLength value="127"/>
 		<xsd:whiteSpace value="collapse"/>
+		<xsd:enumeration value="Global"/>
 		<xsd:enumeration value="System"/>
 		<xsd:enumeration value="Cluster"/>
 		<xsd:enumeration value="Tenant"/>
