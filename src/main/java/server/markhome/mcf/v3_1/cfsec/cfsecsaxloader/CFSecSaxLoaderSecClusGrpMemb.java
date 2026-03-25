@@ -149,7 +149,7 @@ public class CFSecSaxLoaderSecClusGrpMemb
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecClusGrpMembLoaderBehaviour();
 			ICFSecSecClusGrpMembEditObj editSecClusGrpMemb = null;
 			ICFSecSecClusGrpMembObj origSecClusGrpMemb = (ICFSecSecClusGrpMembObj)schemaObj.getSecClusGrpMembTableObj().readSecClusGrpMembByIdIdx( editBuff.getRequiredSecClusGrpId(),
-			editBuff.getRequiredSecUserId() );
+			editBuff.getRequiredLoginId() );
 			if( origSecClusGrpMemb == null ) {
 				editSecClusGrpMemb = editBuff;
 			}
