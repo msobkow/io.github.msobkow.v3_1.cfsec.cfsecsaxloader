@@ -763,7 +763,7 @@
 	<xsd:attribute name="SecUserId" type="SecUserSecUserIdType" use="required"/>
 </xsd:complexType>
 
-<xsd:complexType name="SecUserIdIdxType" mixed="true">
+<xsd:complexType name="SecUserPWHistIdIdxType" mixed="true">
 	<xsd:sequence>
 	</xsd:sequence>
 	<xsd:attribute name="SecUserId" type="SecUserPWHistorySecUserIdType" use="required"/>
