@@ -66,7 +66,10 @@ public class CFSecSaxLoaderSecClusGrpMemb
 		// Common XML Attributes
 		String attrId = null;
 		// SecClusGrpMemb Attributes
+		String attrUser = null;
 		// SecClusGrpMemb References
+		ICFSecSecClusGrpObj refGroup = null;
+		ICFSecSecUserObj refUser = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -108,6 +111,15 @@ public class CFSecSaxLoaderSecClusGrpMemb
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
+				else if( attrLocalName.equals( "User" ) ) {
+					if( attrUser != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrUser = attrs.getValue( idxAttr );
+				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -120,10 +132,17 @@ public class CFSecSaxLoaderSecClusGrpMemb
 			}
 
 			// Ensure that required attributes have values
+			if( ( attrUser == null ) || ( attrUser.length() <= 0 ) ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"User" );
+			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
+			curContext.putNamedValue( "User", attrUser );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -146,10 +165,45 @@ public class CFSecSaxLoaderSecClusGrpMemb
 				scopeObj = null;
 			}
 
+			// Resolve and apply required Container reference
+
+			if( scopeObj == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"scopeObj" );
+			}
+			else if( scopeObj instanceof ICFSecSecClusGrpObj ) {
+				refGroup = (ICFSecSecClusGrpObj) scopeObj;
+				editBuff.setRequiredContainerGroup( refGroup );
+			}
+			else {
+				throw new CFLibUnsupportedClassException( getClass(),
+					S_ProcName,
+					"scopeObj",
+					scopeObj,
+					"ICFSecSecClusGrpObj" );
+			}
+
+			// Lookup refUser by key name value attr
+			if( ( attrUser != null ) && ( attrUser.length() > 0 ) ) {
+				refUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrUser );
+				if( refUser == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve User reference named \"" + attrUser + "\" to table SecUser" );
+				}
+			}
+			else {
+				refUser = null;
+			}
+			editBuff.setRequiredParentUser( refUser );
+
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecClusGrpMembLoaderBehaviour();
 			ICFSecSecClusGrpMembEditObj editSecClusGrpMemb = null;
-			ICFSecSecClusGrpMembObj origSecClusGrpMemb = (ICFSecSecClusGrpMembObj)schemaObj.getSecClusGrpMembTableObj().readSecClusGrpMembByIdIdx( editBuff.getRequiredSecClusGrpId(),
-			editBuff.getRequiredLoginId() );
+			ICFSecSecClusGrpMembObj origSecClusGrpMemb = (ICFSecSecClusGrpMembObj)schemaObj.getSecClusGrpMembTableObj().readSecClusGrpMembByIdIdx( refGroup.getRequiredSecClusGrpId(),
+			refUser.getRequiredLoginId() );
 			if( origSecClusGrpMemb == null ) {
 				editSecClusGrpMemb = editBuff;
 			}
@@ -159,6 +213,7 @@ public class CFSecSaxLoaderSecClusGrpMemb
 						break;
 					case Update:
 						editSecClusGrpMemb = (ICFSecSecClusGrpMembEditObj)origSecClusGrpMemb.beginEdit();
+						editSecClusGrpMemb.setRequiredParentUser( editBuff.getRequiredParentUser() );
 						break;
 					case Replace:
 						editSecClusGrpMemb = (ICFSecSecClusGrpMembEditObj)origSecClusGrpMemb.beginEdit();

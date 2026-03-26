@@ -879,6 +879,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
+	<xsd:attribute name="SubGroup" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecClusGrpMembObjType" mixed="true">
@@ -886,6 +887,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
+	<xsd:attribute name="User" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecSessionObjType" mixed="true">
@@ -929,7 +931,6 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="TenantId" type="SecTentGrpTenantIdType" use="required"/>
 	<xsd:attribute name="Name" type="SecTentGrpNameType" use="required"/>
 </xsd:complexType>
 
@@ -938,6 +939,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
+	<xsd:attribute name="SubGroup" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecTentGrpMembObjType" mixed="true">
@@ -945,6 +947,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
+	<xsd:attribute name="User" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecUserObjType" mixed="true">
@@ -1010,13 +1013,9 @@
 			<xsd:element name="ISOLang" type="ISOLangObjType" />
 			<xsd:element name="ISOTZone" type="ISOTZoneObjType" />
 			<xsd:element name="SecClusGrp" type="SecClusGrpObjType" />
-			<xsd:element name="SecClusGrpInc" type="SecClusGrpIncObjType" />
-			<xsd:element name="SecClusGrpMemb" type="SecClusGrpMembObjType" />
 			<xsd:element name="SecSession" type="SecSessionObjType" />
 			<xsd:element name="SecSysGrp" type="SecSysGrpObjType" />
 			<xsd:element name="SecTentGrp" type="SecTentGrpObjType" />
-			<xsd:element name="SecTentGrpInc" type="SecTentGrpIncObjType" />
-			<xsd:element name="SecTentGrpMemb" type="SecTentGrpMembObjType" />
 			<xsd:element name="SecUser" type="SecUserObjType" />
 			<xsd:element name="SecUserPWHistory" type="SecUserPWHistoryObjType" />
 			<xsd:element name="SecUserPassword" type="SecUserPasswordObjType" />

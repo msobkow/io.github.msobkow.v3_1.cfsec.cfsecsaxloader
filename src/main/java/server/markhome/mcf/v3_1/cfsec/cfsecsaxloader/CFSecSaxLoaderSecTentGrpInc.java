@@ -66,7 +66,10 @@ public class CFSecSaxLoaderSecTentGrpInc
 		// Common XML Attributes
 		String attrId = null;
 		// SecTentGrpInc Attributes
+		String attrSubGroup = null;
 		// SecTentGrpInc References
+		ICFSecSecTentGrpObj refGroup = null;
+		ICFSecSecSysGrpObj refSubGroup = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -108,6 +111,15 @@ public class CFSecSaxLoaderSecTentGrpInc
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
+				else if( attrLocalName.equals( "SubGroup" ) ) {
+					if( attrSubGroup != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrSubGroup = attrs.getValue( idxAttr );
+				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -120,10 +132,17 @@ public class CFSecSaxLoaderSecTentGrpInc
 			}
 
 			// Ensure that required attributes have values
+			if( ( attrSubGroup == null ) || ( attrSubGroup.length() <= 0 ) ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"SubGroup" );
+			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
+			curContext.putNamedValue( "SubGroup", attrSubGroup );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -146,10 +165,45 @@ public class CFSecSaxLoaderSecTentGrpInc
 				scopeObj = null;
 			}
 
+			// Resolve and apply required Container reference
+
+			if( scopeObj == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"scopeObj" );
+			}
+			else if( scopeObj instanceof ICFSecSecTentGrpObj ) {
+				refGroup = (ICFSecSecTentGrpObj) scopeObj;
+				editBuff.setRequiredContainerGroup( refGroup );
+			}
+			else {
+				throw new CFLibUnsupportedClassException( getClass(),
+					S_ProcName,
+					"scopeObj",
+					scopeObj,
+					"ICFSecSecTentGrpObj" );
+			}
+
+			// Lookup refSubGroup by key name value attr
+			if( ( attrSubGroup != null ) && ( attrSubGroup.length() > 0 ) ) {
+				refSubGroup = (ICFSecSecSysGrpObj)schemaObj.getSecSysGrpTableObj().readSecSysGrpByUNameIdx( attrSubGroup );
+				if( refSubGroup == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve SubGroup reference named \"" + attrSubGroup + "\" to table SecSysGrp" );
+				}
+			}
+			else {
+				refSubGroup = null;
+			}
+			editBuff.setRequiredParentSubGroup( refSubGroup );
+
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecTentGrpIncLoaderBehaviour();
 			ICFSecSecTentGrpIncEditObj editSecTentGrpInc = null;
-			ICFSecSecTentGrpIncObj origSecTentGrpInc = (ICFSecSecTentGrpIncObj)schemaObj.getSecTentGrpIncTableObj().readSecTentGrpIncByIdIdx( editBuff.getRequiredSecTentGrpId(),
-			editBuff.getRequiredInclName() );
+			ICFSecSecTentGrpIncObj origSecTentGrpInc = (ICFSecSecTentGrpIncObj)schemaObj.getSecTentGrpIncTableObj().readSecTentGrpIncByIdIdx( refGroup.getRequiredSecTentGrpId(),
+			refSubGroup.getRequiredName() );
 			if( origSecTentGrpInc == null ) {
 				editSecTentGrpInc = editBuff;
 			}
@@ -159,6 +213,7 @@ public class CFSecSaxLoaderSecTentGrpInc
 						break;
 					case Update:
 						editSecTentGrpInc = (ICFSecSecTentGrpIncEditObj)origSecTentGrpInc.beginEdit();
+						editSecTentGrpInc.setRequiredParentSubGroup( editBuff.getRequiredParentSubGroup() );
 						break;
 					case Replace:
 						editSecTentGrpInc = (ICFSecSecTentGrpIncEditObj)origSecTentGrpInc.beginEdit();
