@@ -96,6 +96,13 @@
 	</xsd:restriction>
 </xsd:simpleType>
 
+<xsd:simpleType name="EMailAddrTypeType">
+	<xsd:restriction base="xsd:string">
+		<xsd:maxLength value="512"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
 <xsd:simpleType name="ISOCtryIdGenType">
 	<xsd:restriction base="xsd:short"/>
 </xsd:simpleType>
@@ -517,49 +524,62 @@
 </xsd:simpleType>
 
 <xsd:simpleType name="SecUserDfltSysGrpNameType">
-	<xsd:restriction base="xsd:string">
+	<xsd:restriction base="GroupNameType">
 		<xsd:maxLength value="64"/>
 		<xsd:whiteSpace value="preserve"/>
 	</xsd:restriction>
 </xsd:simpleType>
 
 <xsd:simpleType name="SecUserDfltClusGrpNameType">
-	<xsd:restriction base="xsd:string">
+	<xsd:restriction base="GroupNameType">
 		<xsd:maxLength value="64"/>
 		<xsd:whiteSpace value="preserve"/>
 	</xsd:restriction>
 </xsd:simpleType>
 
 <xsd:simpleType name="SecUserDfltTentGrpNameType">
-	<xsd:restriction base="xsd:string">
+	<xsd:restriction base="GroupNameType">
 		<xsd:maxLength value="64"/>
 		<xsd:whiteSpace value="preserve"/>
 	</xsd:restriction>
 </xsd:simpleType>
 
 <xsd:simpleType name="SecUserEMailAddressType">
-	<xsd:restriction base="xsd:string">
+	<xsd:restriction base="EMailAddrTypeType">
 		<xsd:maxLength value="512"/>
 		<xsd:whiteSpace value="preserve"/>
 	</xsd:restriction>
 </xsd:simpleType>
 
-<xsd:simpleType name="SecUserEMailConfirmUuid6Type">
-	<xsd:restriction base="Uuid6"/>
+<xsd:simpleType name="SecUserRevisionType">
+	<xsd:restriction base="xsd:integer"/>
 </xsd:simpleType>
 
-<xsd:simpleType name="SecUserPasswordHashType">
-	<xsd:restriction base="xsd:string">
-		<xsd:maxLength value="256"/>
+<xsd:simpleType name="SecUserEMConfSecUserIdType">
+	<xsd:restriction base="SecUserIdGenType">
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserEMConfConfirmEMailAddrType">
+	<xsd:restriction base="EMailAddrTypeType">
+		<xsd:maxLength value="512"/>
 		<xsd:whiteSpace value="preserve"/>
 	</xsd:restriction>
 </xsd:simpleType>
 
-<xsd:simpleType name="SecUserPasswordResetUuid6Type">
+<xsd:simpleType name="SecUserEMConfEMailSentStampType">
+	<xsd:restriction base="xsd:dateTime"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserEMConfEMConfirmationUuid6Type">
 	<xsd:restriction base="Uuid6"/>
 </xsd:simpleType>
 
-<xsd:simpleType name="SecUserRevisionType">
+<xsd:simpleType name="SecUserEMConfNewAccountType">
+	<xsd:restriction base="xsd:boolean"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserEMConfRevisionType">
 	<xsd:restriction base="xsd:integer"/>
 </xsd:simpleType>
 
@@ -584,6 +604,30 @@
 </xsd:simpleType>
 
 <xsd:simpleType name="SecUserPWHistoryRevisionType">
+	<xsd:restriction base="xsd:integer"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserPWResetSecUserIdType">
+	<xsd:restriction base="SecUserIdGenType">
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserPWResetSentToEMailAddrType">
+	<xsd:restriction base="EMailAddrTypeType">
+		<xsd:maxLength value="512"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserPWResetPasswordResetUuid6Type">
+	<xsd:restriction base="Uuid6"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserPWResetNewAccountType">
+	<xsd:restriction base="xsd:boolean"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserPWResetRevisionType">
 	<xsd:restriction base="xsd:integer"/>
 </xsd:simpleType>
 
@@ -763,6 +807,12 @@
 	<xsd:attribute name="SecUserId" type="SecUserSecUserIdType" use="required"/>
 </xsd:complexType>
 
+<xsd:complexType name="SecUserEMConfIdIdxType" mixed="true">
+	<xsd:sequence>
+	</xsd:sequence>
+	<xsd:attribute name="SecUserId" type="SecUserEMConfSecUserIdType" use="required"/>
+</xsd:complexType>
+
 <xsd:complexType name="SecUserPWHistIdIdxType" mixed="true">
 	<xsd:sequence>
 	</xsd:sequence>
@@ -770,7 +820,13 @@
 	<xsd:attribute name="PWSetStamp" type="SecUserPWHistoryPWSetStampType" use="required"/>
 </xsd:complexType>
 
-<xsd:complexType name="SecUserIdIdxType" mixed="true">
+<xsd:complexType name="SecUserPWResetIdIdxType" mixed="true">
+	<xsd:sequence>
+	</xsd:sequence>
+	<xsd:attribute name="SecUserId" type="SecUserPWResetSecUserIdType" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="SecUserPasswordIdIdxType" mixed="true">
 	<xsd:sequence>
 	</xsd:sequence>
 	<xsd:attribute name="SecUserId" type="SecUserPasswordSecUserIdType" use="required"/>
@@ -956,13 +1012,21 @@
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="LoginId" type="SecUserLoginIdType" use="required"/>
-	<xsd:attribute name="DfltSysGrpName" type="SecUserDfltSysGrpNameType" use="required"/>
-	<xsd:attribute name="DfltClusGrpName" type="SecUserDfltClusGrpNameType" use="required"/>
-	<xsd:attribute name="DfltTentGrpName" type="SecUserDfltTentGrpNameType" use="required"/>
+	<xsd:attribute name="DfltSysGrpName" type="SecUserDfltSysGrpNameType" use="optional"/>
+	<xsd:attribute name="DfltClusGrpName" type="SecUserDfltClusGrpNameType" use="optional"/>
+	<xsd:attribute name="DfltTentGrpName" type="SecUserDfltTentGrpNameType" use="optional"/>
 	<xsd:attribute name="EMailAddress" type="SecUserEMailAddressType" use="required"/>
-	<xsd:attribute name="EMailConfirmUuid6" type="SecUserEMailConfirmUuid6Type" use="optional"/>
-	<xsd:attribute name="PasswordHash" type="SecUserPasswordHashType" use="required"/>
-	<xsd:attribute name="PasswordResetUuid6" type="SecUserPasswordResetUuid6Type" use="optional"/>
+</xsd:complexType>
+
+<xsd:complexType name="SecUserEMConfObjType" mixed="true">
+	<xsd:sequence>
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+		</xsd:choice>
+	</xsd:sequence>
+	<xsd:attribute name="ConfirmEMailAddr" type="SecUserEMConfConfirmEMailAddrType" use="required"/>
+	<xsd:attribute name="EMailSentStamp" type="SecUserEMConfEMailSentStampType" use="required"/>
+	<xsd:attribute name="EMConfirmationUuid6" type="SecUserEMConfEMConfirmationUuid6Type" use="required"/>
+	<xsd:attribute name="NewAccount" type="SecUserEMConfNewAccountType" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecUserPWHistoryObjType" mixed="true">
@@ -972,6 +1036,16 @@
 	</xsd:sequence>
 	<xsd:attribute name="PWReplacedStamp" type="SecUserPWHistoryPWReplacedStampType" use="required"/>
 	<xsd:attribute name="PasswordHash" type="SecUserPWHistoryPasswordHashType" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="SecUserPWResetObjType" mixed="true">
+	<xsd:sequence>
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+		</xsd:choice>
+	</xsd:sequence>
+	<xsd:attribute name="SentToEMailAddr" type="SecUserPWResetSentToEMailAddrType" use="required"/>
+	<xsd:attribute name="PasswordResetUuid6" type="SecUserPWResetPasswordResetUuid6Type" use="required"/>
+	<xsd:attribute name="NewAccount" type="SecUserPWResetNewAccountType" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecUserPasswordObjType" mixed="true">
@@ -1018,7 +1092,6 @@
 			<xsd:element name="SecTentGrp" type="SecTentGrpObjType" />
 			<xsd:element name="SecUser" type="SecUserObjType" />
 			<xsd:element name="SecUserPWHistory" type="SecUserPWHistoryObjType" />
-			<xsd:element name="SecUserPassword" type="SecUserPasswordObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 </xsd:complexType>

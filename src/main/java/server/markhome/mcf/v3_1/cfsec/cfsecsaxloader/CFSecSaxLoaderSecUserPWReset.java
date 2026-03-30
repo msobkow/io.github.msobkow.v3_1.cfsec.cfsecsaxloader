@@ -1,5 +1,5 @@
 
-// Description: Java 25 XML SAX Element Handler for SecUserPassword
+// Description: Java 25 XML SAX Element Handler for SecUserPWReset
 
 /*
  *	server.markhome.mcf.CFSec
@@ -43,13 +43,13 @@ import server.markhome.mcf.v3_1.cfsec.cfsec.*;
 import server.markhome.mcf.v3_1.cfsec.cfsecobj.*;
 
 /*
- *	CFSecSaxLoaderSecUserPasswordParse XML SAX Element Handler implementation
- *	for SecUserPassword.
+ *	CFSecSaxLoaderSecUserPWResetParse XML SAX Element Handler implementation
+ *	for SecUserPWReset.
  */
-public class CFSecSaxLoaderSecUserPassword
+public class CFSecSaxLoaderSecUserPWReset
 	extends CFLibXmlCoreElementHandler
 {
-	public CFSecSaxLoaderSecUserPassword( CFSecSaxLoader saxLoader ) {
+	public CFSecSaxLoaderSecUserPWReset( CFSecSaxLoader saxLoader ) {
 		super( saxLoader );
 	}
 
@@ -61,14 +61,15 @@ public class CFSecSaxLoaderSecUserPassword
 	throws SAXException
 	{
 		final String S_ProcName = "startElement";
-		ICFSecSecUserPasswordObj origBuff = null;
-		ICFSecSecUserPasswordEditObj editBuff = null;
+		ICFSecSecUserPWResetObj origBuff = null;
+		ICFSecSecUserPWResetEditObj editBuff = null;
 		// Common XML Attributes
 		String attrId = null;
-		// SecUserPassword Attributes
-		String attrPWSetStamp = null;
-		String attrPasswordHash = null;
-		// SecUserPassword References
+		// SecUserPWReset Attributes
+		String attrSentToEMailAddr = null;
+		String attrPasswordResetUuid6 = null;
+		String attrNewAccount = null;
+		// SecUserPWReset References
 		ICFSecSecUserObj refUser = null;
 		// Attribute Extraction
 		String attrLocalName;
@@ -76,7 +77,7 @@ public class CFSecSaxLoaderSecUserPassword
 		int idxAttr;
 		final String S_LocalName = "LocalName";
 		try {
-			assert qName.equals( "SecUserPassword" );
+			assert qName.equals( "SecUserPWReset" );
 
 			CFSecSaxLoader saxLoader = (CFSecSaxLoader)getParser();
 			if( saxLoader == null ) {
@@ -95,8 +96,8 @@ public class CFSecSaxLoaderSecUserPassword
 			}
 
 			// Instantiate an edit buffer for the parsed information
-			origBuff = (ICFSecSecUserPasswordObj)schemaObj.getSecUserPasswordTableObj().newInstance();
-			editBuff = (ICFSecSecUserPasswordEditObj)origBuff.beginEdit();
+			origBuff = (ICFSecSecUserPWResetObj)schemaObj.getSecUserPWResetTableObj().newInstance();
+			editBuff = (ICFSecSecUserPWResetEditObj)origBuff.beginEdit();
 
 			// Extract Attributes
 			numAttrs = attrs.getLength();
@@ -111,23 +112,32 @@ public class CFSecSaxLoaderSecUserPassword
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "PWSetStamp" ) ) {
-					if( attrPWSetStamp != null ) {
+				else if( attrLocalName.equals( "SentToEMailAddr" ) ) {
+					if( attrSentToEMailAddr != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrPWSetStamp = attrs.getValue( idxAttr );
+					attrSentToEMailAddr = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "PasswordHash" ) ) {
-					if( attrPasswordHash != null ) {
+				else if( attrLocalName.equals( "PasswordResetUuid6" ) ) {
+					if( attrPasswordResetUuid6 != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrPasswordHash = attrs.getValue( idxAttr );
+					attrPasswordResetUuid6 = attrs.getValue( idxAttr );
+				}
+				else if( attrLocalName.equals( "NewAccount" ) ) {
+					if( attrNewAccount != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrNewAccount = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -141,24 +151,31 @@ public class CFSecSaxLoaderSecUserPassword
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrPWSetStamp == null ) || ( attrPWSetStamp.length() <= 0 ) ) {
+			if( attrSentToEMailAddr == null ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"PWSetStamp" );
+					"SentToEMailAddr" );
 			}
-			if( attrPasswordHash == null ) {
+			if( ( attrPasswordResetUuid6 == null ) || ( attrPasswordResetUuid6.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"PasswordHash" );
+					"PasswordResetUuid6" );
+			}
+			if( ( attrNewAccount == null ) || ( attrNewAccount.length() <= 0 ) ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"NewAccount" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "PWSetStamp", attrPWSetStamp );
-			curContext.putNamedValue( "PasswordHash", attrPasswordHash );
+			curContext.putNamedValue( "SentToEMailAddr", attrSentToEMailAddr );
+			curContext.putNamedValue( "PasswordResetUuid6", attrPasswordResetUuid6 );
+			curContext.putNamedValue( "NewAccount", attrNewAccount );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -170,21 +187,36 @@ public class CFSecSaxLoaderSecUserPassword
 			else {
 				natId = null;
 			}
-			LocalDateTime natPWSetStamp;
+			String natSentToEMailAddr = attrSentToEMailAddr;
+			editBuff.setRequiredSentToEMailAddr( natSentToEMailAddr );
+
+			CFLibUuid6 natPasswordResetUuid6;
 			try {
-				natPWSetStamp = CFLibXmlUtil.parseTimestamp( attrPWSetStamp );
+				natPasswordResetUuid6 = CFLibUuid6.fromString( attrPasswordResetUuid6 );
 			}
 			catch( RuntimeException e ) {
 				throw new CFLibInvalidArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"PWSetStamp",
+					"PasswordResetUuid6",
 					e );
 			}
-			editBuff.setRequiredPWSetStamp( natPWSetStamp );
+			editBuff.setRequiredPasswordResetUuid6( natPasswordResetUuid6 );
 
-			String natPasswordHash = attrPasswordHash;
-			editBuff.setRequiredPasswordHash( natPasswordHash );
+			boolean natNewAccount;
+			if( attrNewAccount.equals( "true" ) || attrNewAccount.equals( "yes" ) || attrNewAccount.equals( "1" ) ) {
+				natNewAccount = true;
+			}
+			else if( attrNewAccount.equals( "false" ) || attrNewAccount.equals( "no" ) || attrNewAccount.equals( "0" ) ) {
+				natNewAccount = false;
+			}
+			else {
+				throw new CFLibUsageException( getClass(),
+					S_ProcName,
+					String.format(Inz.x("cflib.xml.CFLibXmlUtil.XmlBooleanInvalid"), "NewAccount", attrNewAccount),
+					String.format(Inz.s("cflib.xml.CFLibXmlUtil.XmlBooleanInvalid"), "NewAccount", attrNewAccount));
+			}
+			editBuff.setRequiredNewAccount( natNewAccount );
 
 			// Get the scope/container object
 
@@ -217,12 +249,43 @@ public class CFSecSaxLoaderSecUserPassword
 					"ICFSecSecUserObj" );
 			}
 
-			ICFSecSecUserPasswordObj origSecUserPassword;
-			ICFSecSecUserPasswordEditObj editSecUserPassword = editBuff;
-			origSecUserPassword = (ICFSecSecUserPasswordObj)editSecUserPassword.create();
-			editSecUserPassword = null;
+			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecUserPWResetLoaderBehaviour();
+			ICFSecSecUserPWResetEditObj editSecUserPWReset = null;
+			ICFSecSecUserPWResetObj origSecUserPWReset = (ICFSecSecUserPWResetObj)schemaObj.getSecUserPWResetTableObj().readSecUserPWResetByUUuid6Idx( editBuff.getRequiredPasswordResetUuid6() );
+			if( origSecUserPWReset == null ) {
+				editSecUserPWReset = editBuff;
+			}
+			else {
+				switch( loaderBehaviour ) {
+					case Insert:
+						break;
+					case Update:
+						editSecUserPWReset = (ICFSecSecUserPWResetEditObj)origSecUserPWReset.beginEdit();
+						editSecUserPWReset.setRequiredSentToEMailAddr( editBuff.getRequiredSentToEMailAddr() );
+						editSecUserPWReset.setRequiredPasswordResetUuid6( editBuff.getRequiredPasswordResetUuid6() );
+						editSecUserPWReset.setRequiredNewAccount( editBuff.getRequiredNewAccount() );
+						break;
+					case Replace:
+						editSecUserPWReset = (ICFSecSecUserPWResetEditObj)origSecUserPWReset.beginEdit();
+						editSecUserPWReset.deleteInstance();
+						editSecUserPWReset = null;
+						origSecUserPWReset = null;
+						editSecUserPWReset = editBuff;
+						break;
+				}
+			}
 
-			curContext.putNamedValue( "Object", origSecUserPassword );
+			if( editSecUserPWReset != null ) {
+				if( origSecUserPWReset != null ) {
+					editSecUserPWReset.update();
+				}
+				else {
+					origSecUserPWReset = (ICFSecSecUserPWResetObj)editSecUserPWReset.create();
+				}
+				editSecUserPWReset = null;
+			}
+
+			curContext.putNamedValue( "Object", origSecUserPWReset );
 		}
 		catch( RuntimeException e ) {
 			throw new SAXException( "Near " + getParser().getLocationInfo() + ": Caught and rethrew " + e.getClass().getName() + " - " + e.getMessage(),

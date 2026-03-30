@@ -71,9 +71,8 @@ public class CFSecSaxLoaderSecUser
 		String attrDfltClusGrpName = null;
 		String attrDfltTentGrpName = null;
 		String attrEMailAddress = null;
-		String attrEMailConfirmUuid6 = null;
-		String attrPasswordHash = null;
-		String attrPasswordResetUuid6 = null;
+		String attrEMConf = null;
+		String attrPWReset = null;
 		// SecUser References
 		// Attribute Extraction
 		String attrLocalName;
@@ -161,32 +160,23 @@ public class CFSecSaxLoaderSecUser
 					}
 					attrEMailAddress = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "EMailConfirmUuid6" ) ) {
-					if( attrEMailConfirmUuid6 != null ) {
+				else if( attrLocalName.equals( "EMConf" ) ) {
+					if( attrEMConf != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrEMailConfirmUuid6 = attrs.getValue( idxAttr );
+					attrEMConf = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "PasswordHash" ) ) {
-					if( attrPasswordHash != null ) {
+				else if( attrLocalName.equals( "PWReset" ) ) {
+					if( attrPWReset != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrPasswordHash = attrs.getValue( idxAttr );
-				}
-				else if( attrLocalName.equals( "PasswordResetUuid6" ) ) {
-					if( attrPasswordResetUuid6 != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrPasswordResetUuid6 = attrs.getValue( idxAttr );
+					attrPWReset = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -206,35 +196,11 @@ public class CFSecSaxLoaderSecUser
 					0,
 					"LoginId" );
 			}
-			if( attrDfltSysGrpName == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"DfltSysGrpName" );
-			}
-			if( attrDfltClusGrpName == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"DfltClusGrpName" );
-			}
-			if( attrDfltTentGrpName == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"DfltTentGrpName" );
-			}
 			if( attrEMailAddress == null ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
 					"EMailAddress" );
-			}
-			if( attrPasswordHash == null ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"PasswordHash" );
 			}
 
 			// Save named attributes to context
@@ -245,9 +211,8 @@ public class CFSecSaxLoaderSecUser
 			curContext.putNamedValue( "DfltClusGrpName", attrDfltClusGrpName );
 			curContext.putNamedValue( "DfltTentGrpName", attrDfltTentGrpName );
 			curContext.putNamedValue( "EMailAddress", attrEMailAddress );
-			curContext.putNamedValue( "EMailConfirmUuid6", attrEMailConfirmUuid6 );
-			curContext.putNamedValue( "PasswordHash", attrPasswordHash );
-			curContext.putNamedValue( "PasswordResetUuid6", attrPasswordResetUuid6 );
+			curContext.putNamedValue( "EMConf", attrEMConf );
+			curContext.putNamedValue( "PWReset", attrPWReset );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -263,55 +228,16 @@ public class CFSecSaxLoaderSecUser
 			editBuff.setRequiredLoginId( natLoginId );
 
 			String natDfltSysGrpName = attrDfltSysGrpName;
-			editBuff.setRequiredDfltSysGrpName( natDfltSysGrpName );
+			editBuff.setOptionalDfltSysGrpName( natDfltSysGrpName );
 
 			String natDfltClusGrpName = attrDfltClusGrpName;
-			editBuff.setRequiredDfltClusGrpName( natDfltClusGrpName );
+			editBuff.setOptionalDfltClusGrpName( natDfltClusGrpName );
 
 			String natDfltTentGrpName = attrDfltTentGrpName;
-			editBuff.setRequiredDfltTentGrpName( natDfltTentGrpName );
+			editBuff.setOptionalDfltTentGrpName( natDfltTentGrpName );
 
 			String natEMailAddress = attrEMailAddress;
 			editBuff.setRequiredEMailAddress( natEMailAddress );
-
-			CFLibUuid6 natEMailConfirmUuid6;
-			if( ( attrEMailConfirmUuid6 == null ) || ( attrEMailConfirmUuid6.length() <= 0 ) ) {
-				natEMailConfirmUuid6 = null;
-			}
-			else {
-				try {
-					natEMailConfirmUuid6 = CFLibUuid6.fromString( attrEMailConfirmUuid6 );
-				}
-				catch( RuntimeException e ) {
-					throw new CFLibInvalidArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"EMailConfirmUuid6",
-						e );
-				}
-			}
-			editBuff.setOptionalEMailConfirmUuid6( natEMailConfirmUuid6 );
-
-			String natPasswordHash = attrPasswordHash;
-			editBuff.setRequiredPasswordHash( natPasswordHash );
-
-			CFLibUuid6 natPasswordResetUuid6;
-			if( ( attrPasswordResetUuid6 == null ) || ( attrPasswordResetUuid6.length() <= 0 ) ) {
-				natPasswordResetUuid6 = null;
-			}
-			else {
-				try {
-					natPasswordResetUuid6 = CFLibUuid6.fromString( attrPasswordResetUuid6 );
-				}
-				catch( RuntimeException e ) {
-					throw new CFLibInvalidArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"PasswordResetUuid6",
-						e );
-				}
-			}
-			editBuff.setOptionalPasswordResetUuid6( natPasswordResetUuid6 );
 
 			// Get the scope/container object
 
@@ -323,6 +249,36 @@ public class CFSecSaxLoaderSecUser
 			else {
 				scopeObj = null;
 			}
+
+			// Lookup refEMConf by key name value attr
+			if( ( attrEMConf != null ) && ( attrEMConf.length() > 0 ) ) {
+				refEMConf = (ICFSecSecUserEMConfObj)schemaObj.getSecUserEMConfTableObj().readSecUserEMConfByUUuid6Idx( attrEMConf );
+				if( refEMConf == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve EMConf reference named \"" + attrEMConf + "\" to table SecUserEMConf" );
+				}
+			}
+			else {
+				refEMConf = null;
+			}
+			editBuff.setOptionalComponentsEMConf( refEMConf );
+
+			// Lookup refPWReset by key name value attr
+			if( ( attrPWReset != null ) && ( attrPWReset.length() > 0 ) ) {
+				refPWReset = (ICFSecSecUserPWResetObj)schemaObj.getSecUserPWResetTableObj().readSecUserPWResetByUUuid6Idx( attrPWReset );
+				if( refPWReset == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve PWReset reference named \"" + attrPWReset + "\" to table SecUserPWReset" );
+				}
+			}
+			else {
+				refPWReset = null;
+			}
+			editBuff.setOptionalComponentsPWReset( refPWReset );
 
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecUserLoaderBehaviour();
 			ICFSecSecUserEditObj editSecUser = null;
@@ -337,13 +293,12 @@ public class CFSecSaxLoaderSecUser
 					case Update:
 						editSecUser = (ICFSecSecUserEditObj)origSecUser.beginEdit();
 						editSecUser.setRequiredLoginId( editBuff.getRequiredLoginId() );
-						editSecUser.setRequiredDfltSysGrpName( editBuff.getRequiredDfltSysGrpName() );
-						editSecUser.setRequiredDfltClusGrpName( editBuff.getRequiredDfltClusGrpName() );
-						editSecUser.setRequiredDfltTentGrpName( editBuff.getRequiredDfltTentGrpName() );
+						editSecUser.setOptionalDfltSysGrpName( editBuff.getOptionalDfltSysGrpName() );
+						editSecUser.setOptionalDfltClusGrpName( editBuff.getOptionalDfltClusGrpName() );
+						editSecUser.setOptionalDfltTentGrpName( editBuff.getOptionalDfltTentGrpName() );
 						editSecUser.setRequiredEMailAddress( editBuff.getRequiredEMailAddress() );
-						editSecUser.setOptionalEMailConfirmUuid6( editBuff.getOptionalEMailConfirmUuid6() );
-						editSecUser.setRequiredPasswordHash( editBuff.getRequiredPasswordHash() );
-						editSecUser.setOptionalPasswordResetUuid6( editBuff.getOptionalPasswordResetUuid6() );
+						editSecUser.setOptionalComponentsEMConf( editBuff.getOptionalComponentsEMConf() );
+						editSecUser.setOptionalComponentsPWReset( editBuff.getOptionalComponentsPWReset() );
 						break;
 					case Replace:
 						editSecUser = (ICFSecSecUserEditObj)origSecUser.beginEdit();
