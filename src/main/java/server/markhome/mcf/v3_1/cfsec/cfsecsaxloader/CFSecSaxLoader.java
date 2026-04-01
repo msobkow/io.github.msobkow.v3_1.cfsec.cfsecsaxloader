@@ -287,6 +287,9 @@ public class CFSecSaxLoader
 	protected CFSecSaxLoaderSecUser getSecUserHandler() {
 		if( secUserHandler == null ) {
 			secUserHandler = new CFSecSaxLoaderSecUser( this );
+			secUserHandler.addElementHandler( "SecUserPassword", getSecUserPasswordHandler() );
+			secUserHandler.addElementHandler( "SecUserEMConf", getSecUserEMConfHandler() );
+			secUserHandler.addElementHandler( "SecUserPWReset", getSecUserPWResetHandler() );
 		}
 		return( secUserHandler );
 	}

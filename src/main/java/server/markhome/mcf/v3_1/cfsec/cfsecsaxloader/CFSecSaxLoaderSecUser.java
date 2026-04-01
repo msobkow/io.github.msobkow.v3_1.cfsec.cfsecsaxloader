@@ -250,36 +250,6 @@ public class CFSecSaxLoaderSecUser
 				scopeObj = null;
 			}
 
-			// Lookup refEMConf by key name value attr
-			if( ( attrEMConf != null ) && ( attrEMConf.length() > 0 ) ) {
-				refEMConf = (ICFSecSecUserEMConfObj)schemaObj.getSecUserEMConfTableObj().readSecUserEMConfByUUuid6Idx( attrEMConf );
-				if( refEMConf == null ) {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Resolve EMConf reference named \"" + attrEMConf + "\" to table SecUserEMConf" );
-				}
-			}
-			else {
-				refEMConf = null;
-			}
-			editBuff.setOptionalComponentsEMConf( refEMConf );
-
-			// Lookup refPWReset by key name value attr
-			if( ( attrPWReset != null ) && ( attrPWReset.length() > 0 ) ) {
-				refPWReset = (ICFSecSecUserPWResetObj)schemaObj.getSecUserPWResetTableObj().readSecUserPWResetByUUuid6Idx( attrPWReset );
-				if( refPWReset == null ) {
-					throw new CFLibNullArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"Resolve PWReset reference named \"" + attrPWReset + "\" to table SecUserPWReset" );
-				}
-			}
-			else {
-				refPWReset = null;
-			}
-			editBuff.setOptionalComponentsPWReset( refPWReset );
-
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecUserLoaderBehaviour();
 			ICFSecSecUserEditObj editSecUser = null;
 			ICFSecSecUserObj origSecUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( editBuff.getRequiredLoginId() );

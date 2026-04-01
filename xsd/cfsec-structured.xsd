@@ -1009,6 +1009,9 @@
 <xsd:complexType name="SecUserObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="SecUserPassword" type="SecUserPasswordObjType" />
+			<xsd:element name="SecUserEMConf" type="SecUserEMConfObjType" />
+			<xsd:element name="SecUserPWReset" type="SecUserPWResetObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="LoginId" type="SecUserLoginIdType" use="required"/>
