@@ -267,8 +267,6 @@ public class CFSecSaxLoaderSecUser
 						editSecUser.setOptionalDfltClusGrpName( editBuff.getOptionalDfltClusGrpName() );
 						editSecUser.setOptionalDfltTentGrpName( editBuff.getOptionalDfltTentGrpName() );
 						editSecUser.setRequiredEMailAddress( editBuff.getRequiredEMailAddress() );
-						editSecUser.setOptionalComponentsEMConf( editBuff.getOptionalComponentsEMConf() );
-						editSecUser.setOptionalComponentsPWReset( editBuff.getOptionalComponentsPWReset() );
 						break;
 					case Replace:
 						editSecUser = (ICFSecSecUserEditObj)origSecUser.beginEdit();
