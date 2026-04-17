@@ -39,6 +39,20 @@
 	</xsd:restriction>
 </xsd:simpleType>
 
+<xsd:simpleType name="SecAccountStatusEnumType">
+	<xsd:restriction base="xsd:token">
+		<xsd:minLength value="1"/>
+		<xsd:maxLength value="127"/>
+		<xsd:whiteSpace value="collapse"/>
+		<xsd:enumeration value="System"/>
+		<xsd:enumeration value="VerifyingEmail"/>
+		<xsd:enumeration value="CreatingDevKey"/>
+		<xsd:enumeration value="NormalUser"/>
+		<xsd:enumeration value="ResettingPassword"/>
+		<xsd:enumeration value="Locked"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
 <xsd:simpleType name="ClusterIdGenType">
 	<xsd:restriction base="DbKeyHash256"/>
 </xsd:simpleType>
@@ -520,6 +534,11 @@
 	<xsd:restriction base="LoginIdTypeType">
 		<xsd:maxLength value="32"/>
 		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="SecUserAccountStatusType">
+	<xsd:restriction base="SecAccountStatusEnumType">
 	</xsd:restriction>
 </xsd:simpleType>
 
@@ -1015,6 +1034,7 @@
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="LoginId" type="SecUserLoginIdType" use="required"/>
+	<xsd:attribute name="AccountStatus" type="SecUserAccountStatusType" use="required"/>
 	<xsd:attribute name="DfltSysGrpName" type="SecUserDfltSysGrpNameType" use="optional"/>
 	<xsd:attribute name="DfltClusGrpName" type="SecUserDfltClusGrpNameType" use="optional"/>
 	<xsd:attribute name="DfltTentGrpName" type="SecUserDfltTentGrpNameType" use="optional"/>
