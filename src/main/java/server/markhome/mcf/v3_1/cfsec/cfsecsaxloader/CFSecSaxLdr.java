@@ -569,6 +569,91 @@ public class CFSecSaxLdr
 				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
 			}
 		}
+		else if( tableName.equals( "SecClusRole" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecClusRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecClusRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecClusRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
+		else if( tableName.equals( "SecClusRoleMemb" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecClusRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecClusRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecClusRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
+		else if( tableName.equals( "SecRole" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
+		else if( tableName.equals( "SecRoleEnables" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecRoleEnablesLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecRoleEnablesLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecRoleEnablesLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
+		else if( tableName.equals( "SecRoleMemb" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
 		else if( tableName.equals( "SecSession" ) ) {
 			if( tableOption.equals( "*" ) ) {
 				// Leave at default
@@ -683,6 +768,40 @@ public class CFSecSaxLdr
 			}
 			else if( tableOption.equals( "Replace" ) ) {
 				loader.setSecTentGrpMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
+		else if( tableName.equals( "SecTentRole" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecTentRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecTentRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecTentRoleLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
+			}
+			else {
+				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
+			}
+		}
+		else if( tableName.equals( "SecTentRoleMemb" ) ) {
+			if( tableOption.equals( "*" ) ) {
+				// Leave at default
+			}
+			else if( tableOption.equals( "Insert" ) ) {
+				loader.setSecTentRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Insert );
+			}
+			else if( tableOption.equals( "Update" ) ) {
+				loader.setSecTentRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Update );
+			}
+			else if( tableOption.equals( "Replace" ) ) {
+				loader.setSecTentRoleMembLoaderBehaviour( CFSecSaxLoader.LoaderBehaviourEnum.Replace );
 			}
 			else {
 				throw new RuntimeException( S_ProcName + "ERROR: Expected segment to comprise <TableName>={*|Insert|Update|Replace}" );
