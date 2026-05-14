@@ -437,7 +437,6 @@ public class CFSecSaxLoader
 			saxDocHandler.addElementHandler( "ISOTZone", getISOTZoneHandler() );
 			saxDocHandler.addElementHandler( "SecClusGrp", getSecClusGrpHandler() );
 			saxDocHandler.addElementHandler( "SecClusRole", getSecClusRoleHandler() );
-			saxDocHandler.addElementHandler( "SecClusRoleMemb", getSecClusRoleMembHandler() );
 			saxDocHandler.addElementHandler( "SecRole", getSecRoleHandler() );
 			saxDocHandler.addElementHandler( "SecSession", getSecSessionHandler() );
 			saxDocHandler.addElementHandler( "SecSysGrp", getSecSysGrpHandler() );

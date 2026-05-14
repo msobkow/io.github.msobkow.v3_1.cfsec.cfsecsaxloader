@@ -66,7 +66,10 @@ public class CFSecSaxLoaderSecClusRoleMemb
 		// Common XML Attributes
 		String attrId = null;
 		// SecClusRoleMemb Attributes
+		String attrUser = null;
 		// SecClusRoleMemb References
+		ICFSecSecClusRoleObj refRole = null;
+		ICFSecSecUserObj refUser = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -108,6 +111,15 @@ public class CFSecSaxLoaderSecClusRoleMemb
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
+				else if( attrLocalName.equals( "User" ) ) {
+					if( attrUser != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrUser = attrs.getValue( idxAttr );
+				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -120,10 +132,17 @@ public class CFSecSaxLoaderSecClusRoleMemb
 			}
 
 			// Ensure that required attributes have values
+			if( ( attrUser == null ) || ( attrUser.length() <= 0 ) ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"User" );
+			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
+			curContext.putNamedValue( "User", attrUser );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -146,10 +165,45 @@ public class CFSecSaxLoaderSecClusRoleMemb
 				scopeObj = null;
 			}
 
+			// Resolve and apply required Container reference
+
+			if( scopeObj == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"scopeObj" );
+			}
+			else if( scopeObj instanceof ICFSecSecClusRoleObj ) {
+				refRole = (ICFSecSecClusRoleObj) scopeObj;
+				editBuff.setRequiredContainerRole( refRole );
+			}
+			else {
+				throw new CFLibUnsupportedClassException( getClass(),
+					S_ProcName,
+					"scopeObj",
+					scopeObj,
+					"ICFSecSecClusRoleObj" );
+			}
+
+			// Lookup refUser by key name value attr
+			if( ( attrUser != null ) && ( attrUser.length() > 0 ) ) {
+				refUser = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrUser );
+				if( refUser == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve User reference named \"" + attrUser + "\" to table SecUser" );
+				}
+			}
+			else {
+				refUser = null;
+			}
+			editBuff.setRequiredParentUser( refUser );
+
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecClusRoleMembLoaderBehaviour();
 			ICFSecSecClusRoleMembEditObj editSecClusRoleMemb = null;
-			ICFSecSecClusRoleMembObj origSecClusRoleMemb = (ICFSecSecClusRoleMembObj)schemaObj.getSecClusRoleMembTableObj().readSecClusRoleMembByIdIdx( editBuff.getRequiredSecClusRoleId(),
-			editBuff.getRequiredLoginId() );
+			ICFSecSecClusRoleMembObj origSecClusRoleMemb = (ICFSecSecClusRoleMembObj)schemaObj.getSecClusRoleMembTableObj().readSecClusRoleMembByIdIdx( refRole.getRequiredSecClusRoleId(),
+			refUser.getRequiredLoginId() );
 			if( origSecClusRoleMemb == null ) {
 				editSecClusRoleMemb = editBuff;
 			}
@@ -159,6 +213,7 @@ public class CFSecSaxLoaderSecClusRoleMemb
 						break;
 					case Update:
 						editSecClusRoleMemb = (ICFSecSecClusRoleMembEditObj)origSecClusRoleMemb.beginEdit();
+						editSecClusRoleMemb.setRequiredParentUser( editBuff.getRequiredParentUser() );
 						break;
 					case Replace:
 						editSecClusRoleMemb = (ICFSecSecClusRoleMembEditObj)origSecClusRoleMemb.beginEdit();

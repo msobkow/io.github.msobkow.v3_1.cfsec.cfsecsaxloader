@@ -66,9 +66,9 @@ public class CFSecSaxLoaderSecClusRole
 		// Common XML Attributes
 		String attrId = null;
 		// SecClusRole Attributes
-		String attrClusterId = null;
 		String attrName = null;
 		// SecClusRole References
+		ICFSecClusterObj refCluster = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -110,15 +110,6 @@ public class CFSecSaxLoaderSecClusRole
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "ClusterId" ) ) {
-					if( attrClusterId != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrClusterId = attrs.getValue( idxAttr );
-				}
 				else if( attrLocalName.equals( "Name" ) ) {
 					if( attrName != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
@@ -140,12 +131,6 @@ public class CFSecSaxLoaderSecClusRole
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrClusterId == null ) || ( attrClusterId.length() <= 0 ) ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"ClusterId" );
-			}
 			if( attrName == null ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
@@ -156,7 +141,6 @@ public class CFSecSaxLoaderSecClusRole
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "ClusterId", attrClusterId );
 			curContext.putNamedValue( "Name", attrName );
 
 			// Convert string attributes to native Java types
@@ -169,19 +153,6 @@ public class CFSecSaxLoaderSecClusRole
 			else {
 				natId = null;
 			}
-			CFLibDbKeyHash256 natClusterId;
-			try {
-				natClusterId = CFLibDbKeyHash256.fromHex( attrClusterId );
-			}
-			catch( RuntimeException e ) {
-				throw new CFLibInvalidArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"ClusterId",
-					e );
-			}
-			editBuff.setRequiredClusterId( natClusterId );
-
 			String natName = attrName;
 			editBuff.setRequiredName( natName );
 
@@ -196,9 +167,25 @@ public class CFSecSaxLoaderSecClusRole
 				scopeObj = null;
 			}
 
+			refCluster = null;
+			// Resolve and apply Owner reference
+
+			if( refCluster == null ) {
+				if( scopeObj instanceof ICFSecClusterObj ) {
+					refCluster = (ICFSecClusterObj) scopeObj;
+					editBuff.setRequiredOwnerCluster( refCluster );
+				}
+				else {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Owner<Cluster>" );
+				}
+			}
+
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecClusRoleLoaderBehaviour();
 			ICFSecSecClusRoleEditObj editSecClusRole = null;
-			ICFSecSecClusRoleObj origSecClusRole = (ICFSecSecClusRoleObj)schemaObj.getSecClusRoleTableObj().readSecClusRoleByUNameIdx( editBuff.getRequiredClusterId(),
+			ICFSecSecClusRoleObj origSecClusRole = (ICFSecSecClusRoleObj)schemaObj.getSecClusRoleTableObj().readSecClusRoleByUNameIdx( refCluster.getRequiredId(),
 			editBuff.getRequiredName() );
 			if( origSecClusRole == null ) {
 				editSecClusRole = editBuff;
@@ -209,7 +196,6 @@ public class CFSecSaxLoaderSecClusRole
 						break;
 					case Update:
 						editSecClusRole = (ICFSecSecClusRoleEditObj)origSecClusRole.beginEdit();
-						editSecClusRole.setRequiredClusterId( editBuff.getRequiredClusterId() );
 						editSecClusRole.setRequiredName( editBuff.getRequiredName() );
 						break;
 					case Replace:
