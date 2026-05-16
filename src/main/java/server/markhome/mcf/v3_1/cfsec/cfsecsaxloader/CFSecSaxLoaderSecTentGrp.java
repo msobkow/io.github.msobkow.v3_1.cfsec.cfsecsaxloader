@@ -66,9 +66,10 @@ public class CFSecSaxLoaderSecTentGrp
 		// Common XML Attributes
 		String attrId = null;
 		// SecTentGrp Attributes
-		String attrName = null;
+		String attrSysGrp = null;
 		// SecTentGrp References
 		ICFSecTenantObj refTenant = null;
+		ICFSecSecSysGrpObj refSysGrp = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -110,14 +111,14 @@ public class CFSecSaxLoaderSecTentGrp
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "Name" ) ) {
-					if( attrName != null ) {
+				else if( attrLocalName.equals( "SysGrp" ) ) {
+					if( attrSysGrp != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrName = attrs.getValue( idxAttr );
+					attrSysGrp = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -131,17 +132,17 @@ public class CFSecSaxLoaderSecTentGrp
 			}
 
 			// Ensure that required attributes have values
-			if( attrName == null ) {
+			if( ( attrSysGrp == null ) || ( attrSysGrp.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
-					"Name" );
+					"SysGrp" );
 			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "Name", attrName );
+			curContext.putNamedValue( "SysGrp", attrSysGrp );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -153,9 +154,6 @@ public class CFSecSaxLoaderSecTentGrp
 			else {
 				natId = null;
 			}
-			String natName = attrName;
-			editBuff.setRequiredName( natName );
-
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -183,10 +181,25 @@ public class CFSecSaxLoaderSecTentGrp
 				}
 			}
 
+			// Lookup refSysGrp by key name value attr
+			if( ( attrSysGrp != null ) && ( attrSysGrp.length() > 0 ) ) {
+				refSysGrp = (ICFSecSecSysGrpObj)schemaObj.getSecSysGrpTableObj().readSecSysGrpByUNameIdx( attrSysGrp );
+				if( refSysGrp == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve SysGrp reference named \"" + attrSysGrp + "\" to table SecSysGrp" );
+				}
+			}
+			else {
+				refSysGrp = null;
+			}
+			editBuff.setRequiredParentSysGrp( refSysGrp );
+
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecTentGrpLoaderBehaviour();
 			ICFSecSecTentGrpEditObj editSecTentGrp = null;
 			ICFSecSecTentGrpObj origSecTentGrp = (ICFSecSecTentGrpObj)schemaObj.getSecTentGrpTableObj().readSecTentGrpByUNameIdx( refTenant.getRequiredId(),
-			editBuff.getRequiredName() );
+			refSysGrp.getRequiredName() );
 			if( origSecTentGrp == null ) {
 				editSecTentGrp = editBuff;
 			}
@@ -196,7 +209,7 @@ public class CFSecSaxLoaderSecTentGrp
 						break;
 					case Update:
 						editSecTentGrp = (ICFSecSecTentGrpEditObj)origSecTentGrp.beginEdit();
-						editSecTentGrp.setRequiredName( editBuff.getRequiredName() );
+						editSecTentGrp.setRequiredParentSysGrp( editBuff.getRequiredParentSysGrp() );
 						break;
 					case Replace:
 						editSecTentGrp = (ICFSecSecTentGrpEditObj)origSecTentGrp.beginEdit();

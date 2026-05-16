@@ -1123,7 +1123,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="Name" type="SecClusGrpNameType" use="required"/>
+	<xsd:attribute name="SysGrp" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecClusGrpIncObjType" mixed="true">
@@ -1223,7 +1223,7 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="Name" type="SecTentGrpNameType" use="required"/>
+	<xsd:attribute name="SysGrp" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecTentGrpIncObjType" mixed="true">
