@@ -66,6 +66,7 @@ public class CFSecSaxLoaderSecTentRole
 		// Common XML Attributes
 		String attrId = null;
 		// SecTentRole Attributes
+		String attrSysRole = null;
 		// SecTentRole References
 		ICFSecTenantObj refTenant = null;
 		ICFSecSecSysGrpObj refSysRole = null;
@@ -110,6 +111,15 @@ public class CFSecSaxLoaderSecTentRole
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
+				else if( attrLocalName.equals( "SysRole" ) ) {
+					if( attrSysRole != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrSysRole = attrs.getValue( idxAttr );
+				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -122,10 +132,17 @@ public class CFSecSaxLoaderSecTentRole
 			}
 
 			// Ensure that required attributes have values
+			if( ( attrSysRole == null ) || ( attrSysRole.length() <= 0 ) ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"SysRole" );
+			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
+			curContext.putNamedValue( "SysRole", attrSysRole );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -156,33 +173,32 @@ public class CFSecSaxLoaderSecTentRole
 					0,
 					"scopeObj" );
 			}
-			else if( scopeObj instanceof ICFSecSecSysGrpObj ) {
-				refSysRole = (ICFSecSecSysGrpObj) scopeObj;
-				editBuff.setRequiredContainerSysRole( refSysRole );
-				refTenant = (ICFSecTenantObj)editBuff.getRequiredOwnerTenant();
+			else if( scopeObj instanceof ICFSecTenantObj ) {
+				refTenant = (ICFSecTenantObj) scopeObj;
+				editBuff.setRequiredContainerTenant( refTenant );
 			}
 			else {
 				throw new CFLibUnsupportedClassException( getClass(),
 					S_ProcName,
 					"scopeObj",
 					scopeObj,
-					"ICFSecSecSysGrpObj" );
+					"ICFSecTenantObj" );
 			}
 
-			// Resolve and apply Owner reference
-
-			if( refTenant == null ) {
-				if( scopeObj instanceof ICFSecTenantObj ) {
-					refTenant = (ICFSecTenantObj) scopeObj;
-					editBuff.setRequiredOwnerTenant( refTenant );
-				}
-				else {
+			// Lookup refSysRole by key name value attr
+			if( ( attrSysRole != null ) && ( attrSysRole.length() > 0 ) ) {
+				refSysRole = (ICFSecSecSysGrpObj)schemaObj.getSecSysGrpTableObj().readSecSysGrpByUNameIdx( attrSysRole );
+				if( refSysRole == null ) {
 					throw new CFLibNullArgumentException( getClass(),
 						S_ProcName,
 						0,
-						"Owner<Tenant>" );
+						"Resolve SysRole reference named \"" + attrSysRole + "\" to table SecSysGrp" );
 				}
 			}
+			else {
+				refSysRole = null;
+			}
+			editBuff.setRequiredParentSysRole( refSysRole );
 
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getSecTentRoleLoaderBehaviour();
 			ICFSecSecTentRoleEditObj editSecTentRole = null;
@@ -197,6 +213,7 @@ public class CFSecSaxLoaderSecTentRole
 						break;
 					case Update:
 						editSecTentRole = (ICFSecSecTentRoleEditObj)origSecTentRole.beginEdit();
+						editSecTentRole.setRequiredParentSysRole( editBuff.getRequiredParentSysRole() );
 						break;
 					case Replace:
 						editSecTentRole = (ICFSecSecTentRoleEditObj)origSecTentRole.beginEdit();
