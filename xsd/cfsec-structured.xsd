@@ -1006,8 +1006,6 @@
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 			<xsd:element name="Tenant" type="TenantObjType" />
-			<xsd:element name="SecClusRole" type="SecClusRoleObjType" />
-			<xsd:element name="SysCluster" type="SysClusterObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="FullDomName" type="ClusterFullDomNameType" use="required"/>
@@ -1080,7 +1078,6 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="SysGrp" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecClusGrpMembObjType" mixed="true">
@@ -1096,7 +1093,6 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="SysRole" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecClusRoleMembObjType" mixed="true">
@@ -1121,9 +1117,14 @@
 <xsd:complexType name="SecSysGrpObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="SecSysGrpInc" type="SecSysGrpIncObjType" />
+			<xsd:element name="SecClusGrp" type="SecClusGrpObjType" />
+			<xsd:element name="SecTentGrp" type="SecTentGrpObjType" />
+			<xsd:element name="SecClusRole" type="SecClusRoleObjType" />
+			<xsd:element name="SecTentRole" type="SecTentRoleObjType" />
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="Name" type="SecSysGrpNameType" use="required"/>
+	<xsd:attribute name="Name" type="SecSysGrpNameType" use="optional"/>
 	<xsd:attribute name="SecLevel" type="SecSysGrpSecLevelType" use="required"/>
 </xsd:complexType>
 
@@ -1146,6 +1147,7 @@
 <xsd:complexType name="SecSysRoleObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="SecSysRoleEnables" type="SecSysRoleEnablesObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="Name" type="SecSysRoleNameType" use="required"/>
@@ -1172,7 +1174,6 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="SysGrp" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecTentGrpMembObjType" mixed="true">
@@ -1188,7 +1189,6 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="SysRole" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecTentRoleMembObjType" mixed="true">
@@ -1264,8 +1264,6 @@
 <xsd:complexType name="TenantObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
-			<xsd:element name="SecTentGrp" type="SecTentGrpObjType" />
-			<xsd:element name="SecTentRole" type="SecTentRoleObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 	<xsd:attribute name="TenantName" type="TenantTenantNameType" use="required"/>
@@ -1285,7 +1283,6 @@
 			<xsd:element name="ISOCtry" type="ISOCtryObjType" />
 			<xsd:element name="ISOLang" type="ISOLangObjType" />
 			<xsd:element name="ISOTZone" type="ISOTZoneObjType" />
-			<xsd:element name="SecClusGrp" type="SecClusGrpObjType" />
 			<xsd:element name="SecSession" type="SecSessionObjType" />
 			<xsd:element name="SecSysGrp" type="SecSysGrpObjType" />
 			<xsd:element name="SecSysRole" type="SecSysRoleObjType" />
