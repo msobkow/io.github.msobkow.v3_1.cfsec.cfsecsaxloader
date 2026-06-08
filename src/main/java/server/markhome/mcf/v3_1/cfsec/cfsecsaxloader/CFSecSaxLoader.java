@@ -122,6 +122,7 @@ public class CFSecSaxLoader
 	private LoaderBehaviourEnum secUserPWResetLoaderBehaviour = LoaderBehaviourEnum.Insert;
 	private LoaderBehaviourEnum secUserPasswordLoaderBehaviour = LoaderBehaviourEnum.Insert;
 	private LoaderBehaviourEnum sysClusterLoaderBehaviour = LoaderBehaviourEnum.Insert;
+	private LoaderBehaviourEnum tableInfoLoaderBehaviour = LoaderBehaviourEnum.Update;
 	private LoaderBehaviourEnum tenantLoaderBehaviour = LoaderBehaviourEnum.Insert;
 
 
@@ -169,6 +170,7 @@ public class CFSecSaxLoader
 	private CFSecSaxLoaderSecUserPWReset secUserPWResetHandler = null;
 	private CFSecSaxLoaderSecUserPassword secUserPasswordHandler = null;
 	private CFSecSaxLoaderSysCluster sysClusterHandler = null;
+	private CFSecSaxLoaderTableInfo tableInfoHandler = null;
 	private CFSecSaxLoaderTenant tenantHandler = null;
 	private CFSecSaxRootHandler saxRootHandler = null;
 
@@ -368,6 +370,12 @@ public class CFSecSaxLoader
 		}
 		return( sysClusterHandler );
 	}
+	protected CFSecSaxLoaderTableInfo getTableInfoHandler() {
+		if( tableInfoHandler == null ) {
+			tableInfoHandler = new CFSecSaxLoaderTableInfo( this );
+		}
+		return( tableInfoHandler );
+	}
 	protected CFSecSaxLoaderTenant getTenantHandler() {
 		if( tenantHandler == null ) {
 			tenantHandler = new CFSecSaxLoaderTenant( this );
@@ -429,6 +437,7 @@ public class CFSecSaxLoader
 			saxDocHandler.addElementHandler( "SecSysRole", getSecSysRoleHandler() );
 			saxDocHandler.addElementHandler( "SecUser", getSecUserHandler() );
 			saxDocHandler.addElementHandler( "SecUserPWHistory", getSecUserPWHistoryHandler() );
+			saxDocHandler.addElementHandler( "TableInfo", getTableInfoHandler() );
 		}
 		return( saxDocHandler );
 	}
@@ -687,6 +696,14 @@ public class CFSecSaxLoader
 
 	public void setSysClusterLoaderBehaviour( LoaderBehaviourEnum value ) {
 		sysClusterLoaderBehaviour = value;
+	}
+
+	public LoaderBehaviourEnum getTableInfoLoaderBehaviour() {
+		return( tableInfoLoaderBehaviour );
+	}
+
+	public void setTableInfoLoaderBehaviour( LoaderBehaviourEnum value ) {
+		tableInfoLoaderBehaviour = value;
 	}
 
 	public LoaderBehaviourEnum getTenantLoaderBehaviour() {

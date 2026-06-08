@@ -85,6 +85,10 @@
 	<xsd:restriction base="xsd:short"/>
 </xsd:simpleType>
 
+<xsd:simpleType name="TableInfoIdGenType">
+	<xsd:restriction base="xsd:integer"/>
+</xsd:simpleType>
+
 <xsd:simpleType name="ISOCtryCodeType">
 	<xsd:restriction base="xsd:string">
 		<xsd:maxLength value="2"/>
@@ -784,6 +788,59 @@
 	<xsd:restriction base="xsd:integer"/>
 </xsd:simpleType>
 
+<xsd:simpleType name="TableInfoTableInfoIdType">
+	<xsd:restriction base="TableInfoIdGenType">
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoSchemaNameType">
+	<xsd:restriction base="xsd:string">
+		<xsd:maxLength value="32"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoTableNameType">
+	<xsd:restriction base="xsd:string">
+		<xsd:maxLength value="64"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoBackingClassCodeType">
+	<xsd:restriction base="xsd:integer"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoRuntimeClassCodeType">
+	<xsd:restriction base="xsd:integer"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoHasHistoryType">
+	<xsd:restriction base="xsd:boolean"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoIsMutableType">
+	<xsd:restriction base="xsd:boolean"/>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoSecScopeNameType">
+	<xsd:restriction base="xsd:string">
+		<xsd:maxLength value="32"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoCodeVisType">
+	<xsd:restriction base="xsd:string">
+		<xsd:maxLength value="32"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
+<xsd:simpleType name="TableInfoRevisionType">
+	<xsd:restriction base="xsd:integer"/>
+</xsd:simpleType>
+
 <xsd:simpleType name="TenantIdType">
 	<xsd:restriction base="TenantIdGenType">
 	</xsd:restriction>
@@ -988,6 +1045,12 @@
 	<xsd:sequence>
 	</xsd:sequence>
 	<xsd:attribute name="SingletonId" type="SysClusterSingletonIdType" use="required"/>
+</xsd:complexType>
+
+<xsd:complexType name="TableInfoIdIdxType" mixed="true">
+	<xsd:sequence>
+	</xsd:sequence>
+	<xsd:attribute name="TableInfoId" type="TableInfoTableInfoIdType" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="TenantIdIdxType" mixed="true">
@@ -1261,6 +1324,21 @@
 	</xsd:sequence>
 </xsd:complexType>
 
+<xsd:complexType name="TableInfoObjType" mixed="true">
+	<xsd:sequence>
+		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+		</xsd:choice>
+	</xsd:sequence>
+	<xsd:attribute name="SchemaName" type="TableInfoSchemaNameType" use="required"/>
+	<xsd:attribute name="TableName" type="TableInfoTableNameType" use="required"/>
+	<xsd:attribute name="BackingClassCode" type="TableInfoBackingClassCodeType" use="required"/>
+	<xsd:attribute name="RuntimeClassCode" type="TableInfoRuntimeClassCodeType" use="required"/>
+	<xsd:attribute name="HasHistory" type="TableInfoHasHistoryType" use="required"/>
+	<xsd:attribute name="IsMutable" type="TableInfoIsMutableType" use="required"/>
+	<xsd:attribute name="SecScopeName" type="TableInfoSecScopeNameType" use="required"/>
+	<xsd:attribute name="CodeVis" type="TableInfoCodeVisType" use="required"/>
+</xsd:complexType>
+
 <xsd:complexType name="TenantObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
@@ -1288,6 +1366,7 @@
 			<xsd:element name="SecSysRole" type="SecSysRoleObjType" />
 			<xsd:element name="SecUser" type="SecUserObjType" />
 			<xsd:element name="SecUserPWHistory" type="SecUserPWHistoryObjType" />
+			<xsd:element name="TableInfo" type="TableInfoObjType" />
 		</xsd:choice>
 	</xsd:sequence>
 </xsd:complexType>
