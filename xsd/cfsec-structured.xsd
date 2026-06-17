@@ -807,6 +807,13 @@
 	</xsd:restriction>
 </xsd:simpleType>
 
+<xsd:simpleType name="TableInfoSuperNameType">
+	<xsd:restriction base="xsd:string">
+		<xsd:maxLength value="64"/>
+		<xsd:whiteSpace value="preserve"/>
+	</xsd:restriction>
+</xsd:simpleType>
+
 <xsd:simpleType name="TableInfoBackingClassCodeType">
 	<xsd:restriction base="xsd:integer"/>
 </xsd:simpleType>
@@ -1337,6 +1344,7 @@
 	<xsd:attribute name="IsMutable" type="TableInfoIsMutableType" use="required"/>
 	<xsd:attribute name="SecScopeName" type="TableInfoSecScopeNameType" use="required"/>
 	<xsd:attribute name="CodeVis" type="TableInfoCodeVisType" use="required"/>
+	<xsd:attribute name="SuperRef" type="xsd:string" use="optional"/>
 </xsd:complexType>
 
 <xsd:complexType name="TenantObjType" mixed="true">

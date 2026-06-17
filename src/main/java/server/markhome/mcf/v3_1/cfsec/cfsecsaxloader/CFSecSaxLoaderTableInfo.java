@@ -74,7 +74,9 @@ public class CFSecSaxLoaderTableInfo
 		String attrIsMutable = null;
 		String attrSecScopeName = null;
 		String attrCodeVis = null;
+		String attrSuperRef = null;
 		// TableInfo References
+		ICFSecTableInfoObj refSuperRef = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -188,6 +190,15 @@ public class CFSecSaxLoaderTableInfo
 					}
 					attrCodeVis = attrs.getValue( idxAttr );
 				}
+				else if( attrLocalName.equals( "SuperRef" ) ) {
+					if( attrSuperRef != null ) {
+						throw new CFLibUniqueIndexViolationException( getClass(),
+							S_ProcName,
+							S_LocalName,
+							attrLocalName );
+					}
+					attrSuperRef = attrs.getValue( idxAttr );
+				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
 				}
@@ -260,6 +271,7 @@ public class CFSecSaxLoaderTableInfo
 			curContext.putNamedValue( "IsMutable", attrIsMutable );
 			curContext.putNamedValue( "SecScopeName", attrSecScopeName );
 			curContext.putNamedValue( "CodeVis", attrCodeVis );
+			curContext.putNamedValue( "SuperRef", attrSuperRef );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -330,6 +342,21 @@ public class CFSecSaxLoaderTableInfo
 				scopeObj = null;
 			}
 
+			// Lookup refSuperRef by key name value attr
+			if( ( attrSuperRef != null ) && ( attrSuperRef.length() > 0 ) ) {
+				refSuperRef = (ICFSecTableInfoObj)schemaObj.getTableInfoTableObj().readTableInfoByTableNameIdx( attrSuperRef );
+				if( refSuperRef == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve SuperRef reference named \"" + attrSuperRef + "\" to table TableInfo" );
+				}
+			}
+			else {
+				refSuperRef = null;
+			}
+			editBuff.setOptionalParentSuperRef( refSuperRef );
+
 			CFSecSaxLoader.LoaderBehaviourEnum loaderBehaviour = saxLoader.getTableInfoLoaderBehaviour();
 			ICFSecTableInfoEditObj editTableInfo = null;
 			ICFSecTableInfoObj origTableInfo = (ICFSecTableInfoObj)schemaObj.getTableInfoTableObj().readTableInfoByTableNameIdx( editBuff.getRequiredTableName() );
@@ -350,6 +377,7 @@ public class CFSecSaxLoaderTableInfo
 						editTableInfo.setRequiredIsMutable( editBuff.getRequiredIsMutable() );
 						editTableInfo.setRequiredSecScopeName( editBuff.getRequiredSecScopeName() );
 						editTableInfo.setRequiredCodeVis( editBuff.getRequiredCodeVis() );
+						editTableInfo.setOptionalParentSuperRef( editBuff.getOptionalParentSuperRef() );
 						break;
 					case Replace:
 						editTableInfo = (ICFSecTableInfoEditObj)origTableInfo.beginEdit();
