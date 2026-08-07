@@ -1178,10 +1178,9 @@
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
 		</xsd:choice>
 	</xsd:sequence>
-	<xsd:attribute name="SecUserId" type="SecSessionSecUserIdType" use="required"/>
 	<xsd:attribute name="Start" type="SecSessionStartType" use="required"/>
 	<xsd:attribute name="Finish" type="SecSessionFinishType" use="optional"/>
-	<xsd:attribute name="SecProxyId" type="SecSessionSecProxyIdType" use="optional"/>
+	<xsd:attribute name="SecProxy" type="xsd:string" use="required"/>
 </xsd:complexType>
 
 <xsd:complexType name="SecSysGrpObjType" mixed="true">
@@ -1272,6 +1271,7 @@
 <xsd:complexType name="SecUserObjType" mixed="true">
 	<xsd:sequence>
 		<xsd:choice minOccurs="0" maxOccurs="unbounded">
+			<xsd:element name="SecSession" type="SecSessionObjType" />
 			<xsd:element name="SecUserPassword" type="SecUserPasswordObjType" />
 			<xsd:element name="SecUserEMConf" type="SecUserEMConfObjType" />
 			<xsd:element name="SecUserPWReset" type="SecUserPWResetObjType" />
@@ -1369,7 +1369,6 @@
 			<xsd:element name="ISOCtry" type="ISOCtryObjType" />
 			<xsd:element name="ISOLang" type="ISOLangObjType" />
 			<xsd:element name="ISOTZone" type="ISOTZoneObjType" />
-			<xsd:element name="SecSession" type="SecSessionObjType" />
 			<xsd:element name="SecSysGrp" type="SecSysGrpObjType" />
 			<xsd:element name="SecSysRole" type="SecSysRoleObjType" />
 			<xsd:element name="SecUser" type="SecUserObjType" />

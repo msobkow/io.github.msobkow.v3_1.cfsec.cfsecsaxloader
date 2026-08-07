@@ -334,6 +334,7 @@ public class CFSecSaxLoader
 	protected CFSecSaxLoaderSecUser getSecUserHandler() {
 		if( secUserHandler == null ) {
 			secUserHandler = new CFSecSaxLoaderSecUser( this );
+			secUserHandler.addElementHandler( "SecSession", getSecSessionHandler() );
 			secUserHandler.addElementHandler( "SecUserPassword", getSecUserPasswordHandler() );
 			secUserHandler.addElementHandler( "SecUserEMConf", getSecUserEMConfHandler() );
 			secUserHandler.addElementHandler( "SecUserPWReset", getSecUserPWResetHandler() );
@@ -432,7 +433,6 @@ public class CFSecSaxLoader
 			saxDocHandler.addElementHandler( "ISOCtry", getISOCtryHandler() );
 			saxDocHandler.addElementHandler( "ISOLang", getISOLangHandler() );
 			saxDocHandler.addElementHandler( "ISOTZone", getISOTZoneHandler() );
-			saxDocHandler.addElementHandler( "SecSession", getSecSessionHandler() );
 			saxDocHandler.addElementHandler( "SecSysGrp", getSecSysGrpHandler() );
 			saxDocHandler.addElementHandler( "SecSysRole", getSecSysRoleHandler() );
 			saxDocHandler.addElementHandler( "SecUser", getSecUserHandler() );

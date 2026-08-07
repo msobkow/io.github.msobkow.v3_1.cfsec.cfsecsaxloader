@@ -66,11 +66,12 @@ public class CFSecSaxLoaderSecSession
 		// Common XML Attributes
 		String attrId = null;
 		// SecSession Attributes
-		String attrSecUserId = null;
 		String attrStart = null;
 		String attrFinish = null;
-		String attrSecProxyId = null;
+		String attrSecProxy = null;
 		// SecSession References
+		ICFSecSecUserObj refSecUser = null;
+		ICFSecSecUserObj refSecProxy = null;
 		// Attribute Extraction
 		String attrLocalName;
 		int numAttrs;
@@ -112,15 +113,6 @@ public class CFSecSaxLoaderSecSession
 					}
 					attrId = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "SecUserId" ) ) {
-					if( attrSecUserId != null ) {
-						throw new CFLibUniqueIndexViolationException( getClass(),
-							S_ProcName,
-							S_LocalName,
-							attrLocalName );
-					}
-					attrSecUserId = attrs.getValue( idxAttr );
-				}
 				else if( attrLocalName.equals( "Start" ) ) {
 					if( attrStart != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
@@ -139,14 +131,14 @@ public class CFSecSaxLoaderSecSession
 					}
 					attrFinish = attrs.getValue( idxAttr );
 				}
-				else if( attrLocalName.equals( "SecProxyId" ) ) {
-					if( attrSecProxyId != null ) {
+				else if( attrLocalName.equals( "SecProxy" ) ) {
+					if( attrSecProxy != null ) {
 						throw new CFLibUniqueIndexViolationException( getClass(),
 							S_ProcName,
 							S_LocalName,
 							attrLocalName );
 					}
-					attrSecProxyId = attrs.getValue( idxAttr );
+					attrSecProxy = attrs.getValue( idxAttr );
 				}
 				else if( attrLocalName.equals( "schemaLocation" ) ) {
 					// ignored
@@ -160,26 +152,25 @@ public class CFSecSaxLoaderSecSession
 			}
 
 			// Ensure that required attributes have values
-			if( ( attrSecUserId == null ) || ( attrSecUserId.length() <= 0 ) ) {
-				throw new CFLibNullArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"SecUserId" );
-			}
 			if( ( attrStart == null ) || ( attrStart.length() <= 0 ) ) {
 				throw new CFLibNullArgumentException( getClass(),
 					S_ProcName,
 					0,
 					"Start" );
 			}
+			if( ( attrSecProxy == null ) || ( attrSecProxy.length() <= 0 ) ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"SecProxy" );
+			}
 
 			// Save named attributes to context
 			CFLibXmlCoreContext curContext = getParser().getCurContext();
 			curContext.putNamedValue( "Id", attrId );
-			curContext.putNamedValue( "SecUserId", attrSecUserId );
 			curContext.putNamedValue( "Start", attrStart );
 			curContext.putNamedValue( "Finish", attrFinish );
-			curContext.putNamedValue( "SecProxyId", attrSecProxyId );
+			curContext.putNamedValue( "SecProxy", attrSecProxy );
 
 			// Convert string attributes to native Java types
 			// and apply the converted attributes to the editBuff.
@@ -191,19 +182,6 @@ public class CFSecSaxLoaderSecSession
 			else {
 				natId = null;
 			}
-			CFLibDbKeyHash256 natSecUserId;
-			try {
-				natSecUserId = CFLibDbKeyHash256.fromHex( attrSecUserId );
-			}
-			catch( RuntimeException e ) {
-				throw new CFLibInvalidArgumentException( getClass(),
-					S_ProcName,
-					0,
-					"SecUserId",
-					e );
-			}
-			editBuff.setRequiredSecUserId( natSecUserId );
-
 			LocalDateTime natStart;
 			try {
 				natStart = CFLibXmlUtil.parseTimestamp( attrStart );
@@ -235,24 +213,6 @@ public class CFSecSaxLoaderSecSession
 			}
 			editBuff.setOptionalFinish( natFinish );
 
-			CFLibDbKeyHash256 natSecProxyId;
-			if( ( attrSecProxyId == null ) || ( attrSecProxyId.length() <= 0 ) ) {
-				natSecProxyId = null;
-			}
-			else {
-				try {
-					natSecProxyId = CFLibDbKeyHash256.fromHex( attrSecProxyId );
-				}
-				catch( RuntimeException e ) {
-					throw new CFLibInvalidArgumentException( getClass(),
-						S_ProcName,
-						0,
-						"SecProxyId",
-						e );
-				}
-			}
-			editBuff.setOptionalSecProxyId( natSecProxyId );
-
 			// Get the scope/container object
 
 			CFLibXmlCoreContext parentContext = curContext.getPrevContext();
@@ -263,6 +223,41 @@ public class CFSecSaxLoaderSecSession
 			else {
 				scopeObj = null;
 			}
+
+			// Resolve and apply required Container reference
+
+			if( scopeObj == null ) {
+				throw new CFLibNullArgumentException( getClass(),
+					S_ProcName,
+					0,
+					"scopeObj" );
+			}
+			else if( scopeObj instanceof ICFSecSecUserObj ) {
+				refSecUser = (ICFSecSecUserObj) scopeObj;
+				editBuff.setRequiredContainerSecUser( refSecUser );
+			}
+			else {
+				throw new CFLibUnsupportedClassException( getClass(),
+					S_ProcName,
+					"scopeObj",
+					scopeObj,
+					"ICFSecSecUserObj" );
+			}
+
+			// Lookup refSecProxy by key name value attr
+			if( ( attrSecProxy != null ) && ( attrSecProxy.length() > 0 ) ) {
+				refSecProxy = (ICFSecSecUserObj)schemaObj.getSecUserTableObj().readSecUserByULoginIdx( attrSecProxy );
+				if( refSecProxy == null ) {
+					throw new CFLibNullArgumentException( getClass(),
+						S_ProcName,
+						0,
+						"Resolve SecProxy reference named \"" + attrSecProxy + "\" to table SecUser" );
+				}
+			}
+			else {
+				refSecProxy = null;
+			}
+			editBuff.setRequiredParentSecProxy( refSecProxy );
 
 			ICFSecSecSessionObj origSecSession;
 			ICFSecSecSessionEditObj editSecSession = editBuff;
